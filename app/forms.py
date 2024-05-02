@@ -13,12 +13,13 @@ class LoginForm(FlaskForm):
 class RegistrationForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     correo = StringField('Correo', validators=[DataRequired(), Email()])
-    contraseña = PasswordField('Contraseña', validators=[
-        DataRequired(),
-        Length(min=8, message='La contraseña debe tener al menos 8 caracteres.'),
-        Regexp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
-               message='La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.')
-    ])
+    contraseña = PasswordField('Contraseña')
+    #, validators=[
+    #    DataRequired(),
+    #    Length(min=8, message='La contraseña debe tener al menos 8 caracteres.'),
+    #    Regexp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+    #           message='La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.')
+    #])
     contraseña2 = PasswordField('Repite Contraseña', validators=[
         DataRequired(),
         EqualTo('contraseña', message='Las contraseñas deben coincidir.')
