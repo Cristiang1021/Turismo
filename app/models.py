@@ -4,6 +4,8 @@ from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
+
+
 class Usuario(UserMixin, db.Model):
     __tablename__ = 'usuario'
     id = db.Column(db.Integer, primary_key=True)
@@ -69,4 +71,5 @@ class PreferenciaUsuario(db.Model):
     temperatura_minima = db.Column(db.Integer, nullable=False)
     temperatura_maxima = db.Column(db.Integer, nullable=False)
     usuario = db.relationship('Usuario', backref='preferencias')
+
 
