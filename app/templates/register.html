@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Registro{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Regístrate</h2>
+    <form action="{{ url_for('main.register') }}" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.nombre.label(class="form-label") }}
+            {{ form.nombre(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.correo.label(class="form-label") }}
+            {{ form.correo(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.contraseña.label(class="form-label") }}
+            {{ form.contraseña(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.contraseña2.label(class="form-label") }}
+            {{ form.contraseña2(class="form-control") }}
+        </div>
+        <div class="form-group form-check">
+            {{ form.es_admin(class="form-check-input") }}
+            {{ form.es_admin.label(class="form-check-label") }}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,60 @@
+{% extends 'admin/base.html' %}
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Usuarios</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('admin.crear_usuario') }}" class="btn btn-sm btn-outline-secondary">
+            <span data-feather="plus"></span>
+            Agregar nuevo
+        </a>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Administrador</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for usuario in usuarios.items %}
+        <tr>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.correo }}</td>
+            <td>{{ 'Sí' if usuario.es_admin else 'No' }}</td>
+            <td>
+                <a href="{{ url_for('admin.editar_usuario', id=usuario.id) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
+                <!-- Corrección aquí: Utiliza csrf_token() para el token CSRF -->
+                <form action="{{ url_for('admin.eliminar_usuario', id=usuario.id) }}" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de querer eliminar este usuario?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i></button>
+</form>
+
+
+
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        {%- for page_num in usuarios.iter_pages() %}
+        {% if usuarios.page == page_num %}
+        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+        {% elif page_num %}
+        <li class="page-item"><a class="page-link" href="{{ url_for('admin.usuarios', page=page_num) }}">{{ page_num }}</a></li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+        {%- endfor %}
+    </ul>
+</nav>
+{% endblock %}

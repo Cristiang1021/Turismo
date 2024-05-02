@@ -1,0 +1,319 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Agregar Nueva Actividad Turística</h2>
+<br>
+    <form action="{{ url_for('admin.crear_actividad') }}" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                {{ form.nombre.label(class="form-label") }}
+                                {{ form.nombre(class="form-control", required=True) }}
+                                {% if form.nombre.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.nombre.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+<div class="form-group col-md-6">
+    {{ form.categoria_id.label(class="form-label") }}
+    {{ form.categoria_id(class="form-control", required=True) }}
+    {% if form.categoria_id.errors %}
+        <div class="invalid-feedback">
+            {% for error in form.categoria_id.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+                             <div class="form-group col-md-6">
+                            {{ form.nivel_fisico_requerido.label(class="form-label") }}
+                            {{ form.nivel_fisico_requerido(class="form-control", required=True) }}
+                            {% if form.nivel_fisico_requerido.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.nivel_fisico_requerido.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+
+
+                         <div class="form-group col-md-6">
+                            {{ form.nivel_dificultad.label(class="form-label") }}
+                            {{ form.nivel_dificultad(class="form-control", required=True) }}
+                            {% if form.nivel_dificultad.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.nivel_dificultad.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group col-md-6">
+                                {{ form.tiempo_promedio_duracion.label(class="form-label") }}
+                                {{ form.tiempo_promedio_duracion(class="form-control", required=True) }}
+                                {% if form.tiempo_promedio_duracion.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.tiempo_promedio_duracion.errors[0] }}
+                                    </div>
+                                {% endif %}
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.epoca_recomendada.label(class="form-label") }}
+                                {{ form.epoca_recomendada(class="form-control", required=True) }}
+                                {% if form.epoca_recomendada.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.epoca_recomendada.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.temperatura_maxima.label(class="form-label") }}
+                                {{ form.temperatura_maxima(class="form-control", required=True) }}
+                                {% if form.temperatura_maxima.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.temperatura_maxima.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.temperatura_minima.label(class="form-label") }}
+                                {{ form.temperatura_minima(class="form-control", required=True) }}
+                                {% if form.temperatura_minima.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.temperatura_minima.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.precipitacion_media_anual.label(class="form-label") }}
+                                {{ form.precipitacion_media_anual(class="form-control", required=True) }}
+                                {% if form.precipitacion_media_anual.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.precipitacion_media_anual.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.precio_referencial.label(class="form-label") }}
+                                {{ form.precio_referencial(class="form-control", required=True) }}
+                                {% if form.precio_referencial.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.precio_referencial.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            {{ form.descripcion_equipamiento.label(class="form-label") }}
+                            {{ form.descripcion_equipamiento(class="form-control", rows=4, required=True) }}
+                            {% if form.descripcion_equipamiento.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.descripcion_equipamiento.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.sitio.label(class="form-label") }}
+                                {{ form.sitio(class="form-control", required=True) }}
+                                {% if form.sitio.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.sitio.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.cota_maxima.label(class="form-label") }}
+                                {{ form.cota_maxima(class="form-control", required=True) }}
+                                {% if form.cota_maxima.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.cota_maxima.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.cota_minima.label(class="form-label") }}
+                                {{ form.cota_minima(class="form-control", required=True) }}
+                                {% if form.cota_minima.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.cota_mina.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.desnivel_subida.label(class="form-label") }}
+                                {{ form.desnivel_subida(class="form-control", required=True) }}
+                                {% if form.desnivel_subida.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.desnivel_subida.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.desnivel_bajada.label(class="form-label") }}
+                                {{ form.desnivel_bajada(class="form-control", required=True) }}
+                                {% if form.desnivel_bajada.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.desnivel_bajada.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.lugar_partida.label(class="form-label") }}
+                                {{ form.lugar_partida(class="form-control", required=True) }}
+                                {% if form.lugar_partida.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.lugar_partida.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.lugar_llegada.label(class="form-label") }}
+                                {{ form.lugar_llegada(class="form-control", required=True) }}
+                                {% if form.lugar_llegada.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.lugar_llegada.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.acceso.label(class="form-label") }}
+                                {{ form.acceso(class="form-control", required=True) }}
+                                {% if form.acceso.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.acceso.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.tipo_superficie.label(class="form-label") }}
+                                {{ form.tipo_superficie(class="form-control", required=True) }}
+                                {% if form.tipo_superficie.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.tipo_superficie.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.localizacion_geografica.label(class="form-label") }}
+                                {{ form.localizacion_geografica(class="form-control", required=True) }}
+                                {% if form.localizacion_geografica.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.localizacion_geografica.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group col-md-12">
+                                {{ form.requerimiento_guia.label(class="form-label") }}
+                                {{ form.requerimiento_guia(class="form-control", required=True) }}
+                                {% if form.requerimiento_guia.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.requerimiento_guia.errors[0] }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+
+
+
+
+                        <!-- Añade más campos aquí de manera similar -->
+</div>
+                        <div class="form-group">
+                            {{ form.imagenes.label(class="form-label") }}
+                            {{ form.imagenes(class="form-control-file", required=True) }}
+                            {% if form.imagenes.errors %}
+                                {% for error in form.imagenes.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Crear Actividad</button>
+                        </div>
+                        <br>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.getElementsByClassName('needs-validation');
+    // Loop over them and prevent submission
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>
+{% endblock %}
