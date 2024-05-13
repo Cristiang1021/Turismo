@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Actividades Disponibles</h1>
+    <div class="row">
+        {% for actividad in actividades %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <img src="{{ actividad.imagenes[0].url if actividad.imagenes else 'https://via.placeholder.com/150' }}" alt="Imagen de {{ actividad.nombre }}">
+                <div class="card-body">
+                    <p class="card-text">{{ actividad.descripcion_equipamiento }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a href="" class="btn btn-sm btn-outline-secondary">Ver más</a>
+                        </div>
+                        <small class="text-muted">{{ actividad.tiempo_promedio_duracion }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

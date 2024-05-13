@@ -13,16 +13,15 @@ class LoginForm(FlaskForm):
 class RegistrationForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     correo = StringField('Correo', validators=[DataRequired(), Email()])
-    contraseña = PasswordField('Contraseña')
-    #, validators=[
-    #    DataRequired(),
-    #    Length(min=8, message='La contraseña debe tener al menos 8 caracteres.'),
-    #    Regexp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
-    #           message='La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.')
-    #])
-    contraseña2 = PasswordField('Repite Contraseña', validators=[
+    contraseña = PasswordField('Contraseña', validators=[
         DataRequired(),
-        EqualTo('contraseña', message='Las contraseñas deben coincidir.')
+        Length(min=8, message='La contraseña debe tener al menos 8 caracteres.'),
+        Regexp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+               message='Debe incluir mayúsculas, minúsculas, números y caracteres especiales.')
+    ])
+    contraseña2 = PasswordField('Confirma Contraseña', validators=[
+        DataRequired(),
+        EqualTo('contraseña', message='Las contraseñas no coinciden.')
     ])
     es_admin = BooleanField('Administrador')
     submit = SubmitField('Registrar')
@@ -30,7 +29,7 @@ class RegistrationForm(FlaskForm):
     def validate_correo(self, correo):
         usuario = Usuario.query.filter_by(correo=correo.data).first()
         if usuario:
-            raise ValidationError('El correo ya está en uso. Por favor, elige un correo diferente.','danger')
+            raise ValidationError('El correo ya está en uso. Por favor, elige un correo diferente.')
 
 class PreferenciasForm(FlaskForm):
     nivel_dificultad = SelectField('Nivel de Dificultad', choices=[('Fácil', 'Fácil'), ('Medio', 'Medio'), ('Difícil', 'Difícil')])

@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
 from sqlalchemy.exc import IntegrityError
+from werkzeug.security import generate_password_hash
 
 from app.services import obtener_recomendaciones
 from . import db
 from .forms import LoginForm, RegistrationForm, PreferenciasForm
-from .models import Usuario
+from .models import Usuario, ActividadTuristica, Categoria
 
 main_bp = Blueprint('main', __name__)
 
@@ -45,31 +46,20 @@ def logout():
 
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    # Si el usuario ya está autenticado, redirigir a la página de inicio
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-
     form = RegistrationForm()
     if form.validate_on_submit():
-        # Crear una instancia del usuario con los datos del formulario
-        user = Usuario(nombre=form.nombre.data, correo=form.correo.data, es_admin=form.es_admin.data)
-        user.set_password(form.contraseña.data)  # Hashear la contraseña antes de guardarla
-
+        hashed_pwd = generate_password_hash(form.contraseña.data)
+        user = Usuario(nombre=form.nombre.data, correo=form.correo.data, contraseña_hash=hashed_pwd, es_admin=form.es_admin.data)
+        db.session.add(user)
         try:
-            # Intentar guardar el nuevo usuario en la base de datos
-            db.session.add(user)
             db.session.commit()
-            flash('¡Felicidades, estás registrado! Ahora puedes iniciar sesión.', 'success')
+            flash('¡Registro exitoso! Ahora puedes iniciar sesión.', 'success')
             return redirect(url_for('main.login'))
-        except IntegrityError:
-            # Si ocurre un error (p. ej., el correo ya existe), deshacer cambios y mostrar un mensaje
+        except:
             db.session.rollback()
-            flash('Ha ocurrido un error al registrar el usuario. Por favor, inténtalo de nuevo.', 'danger')
-        else:
-            for fieldName, errorMessages in form.errors.items():
-                for err in errorMessages:
-                    flash(err, 'danger')
-    # Renderizar la plantilla de registro con el formulario
+            flash('Error al registrar el usuario.', 'danger')
     return render_template('register.html', title='Registro', form=form)
 
 
@@ -90,3 +80,21 @@ def preferencias():
 def inicio():
     actividades_recomendadas = obtener_recomendaciones(current_user.id)
     return render_template('inicio.html', actividades=actividades_recomendadas)
+
+
+@main_bp.route('/actividades')
+def actividades():
+    try:
+        actividades = ActividadTuristica.query.all()
+        return render_template('actividades.html', actividades=actividades)
+    except Exception as e:
+        print(e)
+        flash('Error al cargar las actividades.', 'danger')
+        return redirect(url_for('main.index'))
+
+
+@main_bp.route('/')
+def home():
+    categories = Categoria.query.all()
+    print(categories)  # Esto debería imprimir los objetos de categoría en tu consola
+    return render_template('index.html', categories=categories)

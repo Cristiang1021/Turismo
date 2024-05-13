@@ -41,13 +41,6 @@ def usuarios():
     usuarios = Usuario.query.order_by(Usuario.es_admin.desc()).paginate(page=page, per_page=6)
     return render_template('admin/usuarios.html', usuarios=usuarios)
 
-@admin_bp.route('/categorias')
-@login_required
-def listar_categorias():
-    page = request.args.get('page', 1, type=int)
-    categorias = Categoria.query.paginate(page=page, per_page=6) # Assuming you have a Categoria model and want to retrieve all records
-    return render_template('admin/categorias.html', categorias=categorias)
-
 
 
 
@@ -106,6 +99,14 @@ def eliminar_usuario(id):
     else:
         flash('Usuario no encontrado.', 'danger')
     return redirect(url_for('admin.usuarios'))
+
+
+@admin_bp.route('/categorias')
+@login_required
+def listar_categorias():
+    page = request.args.get('page', 1, type=int)
+    categorias = Categoria.query.paginate(page=page, per_page=6) # Assuming you have a Categoria model and want to retrieve all records
+    return render_template('admin/categorias.html', categorias=categorias)
 
 
 @admin_bp.route('/categorias/crear', methods=['GET', 'POST'])
@@ -176,12 +177,6 @@ def process_images(form, request, actividad):
                     imagen_actividad = ImagenActividad(url=image_url, actividad_id=actividad.id)
                     db.session.add(imagen_actividad)
 
-    if request.method == 'POST' and 'delete_images' in form:
-        for imagen_id in form.delete_images:
-            imagen = ImagenActividad.query.get(imagen_id)
-            if imagen:
-                db.session.delete(imagen)
-
 @admin_bp.route('/actividades/crear', methods=['GET', 'POST'])
 @login_required
 def crear_actividad():
@@ -246,6 +241,11 @@ def editar_actividad(id):
         form.populate_obj(actividad)
 
         process_images(form, request, actividad)
+        if request.method == 'POST' and 'delete_images' in form:
+            for imagen_id in form.delete_images:
+                imagen = ImagenActividad.query.get(imagen_id)
+                if imagen:
+                    db.session.delete(imagen)
 
         db.session.commit()
         flash('Actividad actualizada con éxito!', 'success')

@@ -9,21 +9,21 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="/static/css/admin.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
 {% with messages = get_flashed_messages(with_categories=true) %}
 {% if messages %}
-{% for category, message in messages %}
-<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-</div>
-{% endfor %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
 {% endif %}
 {% endwith %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -53,6 +53,13 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('main.register') }}">Registrarse</a>
                 </li>
+
+                <ul class="navbar-nav mr-auto">
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('main.actividades') }}">Actividades</a>
+    </li>
+</ul>
+
                 {% endif %}
             </ul>
         </div>
@@ -88,6 +95,7 @@
         {% endfor %}
         {% endwith %}
     </div>
+
 </div>
 <script>
 $(document).ready(function() {
@@ -111,8 +119,9 @@ $(document).ready(function() {
         });
     });
 
-
 </script>
+
+
 
 <footer class="footer mt-auto py-3 bg-light">
     <div class="container text-center">

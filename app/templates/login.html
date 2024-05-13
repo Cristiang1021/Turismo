@@ -3,35 +3,71 @@
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h2>Iniciar Sesión</h2>
-        <form action="{{ url_for('main.login') }}" method="post">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                {{ form.correo.label(class="form-label") }}
-                {{ form.correo(class="form-control") }}
-                {% if form.correo.errors %}
-                    {% for error in form.correo.errors %}
-                    <div class="alert alert-danger" role="alert">{{ error }}</div>
-                    {% endfor %}
-                {% endif %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Iniciar Sesión</h2>
+                    <form action="{{ url_for('main.login') }}" method="post">
+                        {{ form.hidden_tag() }}
+                        <div class="form-group">
+                            <label for="{{ form.correo.id }}" class="form-label">{{ form.correo.label.text }}</label>
+                            {{ form.correo(class="form-control") }}
+                            {% if form.correo.errors %}
+                                {% for error in form.correo.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.contraseña.id }}" class="form-label">{{ form.contraseña.label.text }}</label>
+                            {{ form.contraseña(class="form-control") }}
+
+                            {% if form.contraseña.errors %}
+                                {% for error in form.contraseña.errors %}
+                                <div class="alert alert-danger" role="alert">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="form-group form-check">
+                            {{ form.remember_me(class="form-check-input") }}
+                            {{ form.remember_me.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-primary w-100") }}
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                {{ form.contraseña.label(class="form-label") }}
-                {{ form.contraseña(class="form-control") }}
-                {% if form.contraseña.errors %}
-                    {% for error in form.contraseña.errors %}
-                    <div class="alert alert-danger" role="alert">{{ error }}</div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-            <div class="form-group form-check">
-                {{ form.remember_me(class="form-check-input") }}
-                {{ form.remember_me.label(class="form-check-label") }}
-            </div>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-primary") }}
-            </div>
-        </form>
+        </div>
     </div>
+</div>
+{% endblock %}
+
+{% block additional_styles %}
+<style>
+    body { background-color: #f8f9fa; } /* un fondo más claro */
+    .form-control {
+        border: 1px solid #ced4da;
+        height: 45px; /* altura aumentada para los campos */
+        padding: 5px 10px; /* más espacio interior */
+    }
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    .btn-primary {
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+    .card {
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,.05);
+    }
+</style>
 {% endblock %}

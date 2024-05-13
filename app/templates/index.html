@@ -1,10 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %}Recommended{% endblock %}
-
 {% block content %}
-<div class="container">
-    <h1>Explora San Andrés</h1>
-    <p>Descubre las mejores actividades turísticas en San Andrés.</p>
-</div>
+<main class="container mt-5">
+    <section class="text-center mb-5">
+        <h1 class="display-4 font-weight-bold">Descubre las mejores actividades para tu próxima aventura</h1>
+        <p class="lead text-muted">Explora un mundo de actividades emocionantes y crea recuerdos inolvidables. Encuentra la experiencia perfecta para tu próximo viaje.</p>
+        <a href="#explore" class="btn btn-primary btn-lg">Explorar actividades</a>
+    </section>
+
+    <section id="explore" class="mb-5">
+        <h2 class="text-center mb-4">Categorías</h2>
+        <div class="row">
+            <!-- This part will be populated by Flask and Jinja -->
+            <ul>
+                {% if categories %}
+                    {% for category in categories %}
+                        <li>{{ category.nombre }}</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No hay categorías disponibles.</li>
+                {% endif %}
+            </ul>
+        </div>
+    </section>
+</main>
 {% endblock %}

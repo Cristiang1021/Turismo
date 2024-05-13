@@ -3,7 +3,7 @@
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-
+from datetime import datetime
 
 
 class Usuario(UserMixin, db.Model):
@@ -13,18 +13,25 @@ class Usuario(UserMixin, db.Model):
     correo = db.Column(db.String(255), unique=True)
     contraseña_hash = db.Column(db.String(256))
     es_admin = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    @property
+    def password(self):
+        return self.contraseña_hash
 
-    def set_password(self, contraseña):
+    @password.setter
+    def password(self, contraseña):
         self.contraseña_hash = generate_password_hash(contraseña)
 
     def check_password(self, contraseña):
         return check_password_hash(self.contraseña_hash, contraseña)
+
 
 class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), unique=True, nullable=False)
     descripcion = db.Column(db.String(100), unique=False, nullable=False)
     actividades = db.relationship('ActividadTuristica', backref='categoria', lazy=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # ... otros campos según necesidad
 
 class ActividadTuristica(db.Model):
@@ -52,6 +59,7 @@ class ActividadTuristica(db.Model):
     precio_referencial = db.Column(db.String(100), nullable=False)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=False)
     imagenes = db.relationship('ImagenActividad', backref='actividad', lazy=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # ... otros campos según necesidad
 
 class ImagenActividad(db.Model):
@@ -59,6 +67,7 @@ class ImagenActividad(db.Model):
     url = db.Column(db.String(255), nullable=False)
     actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'))
     es_portada = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # ... otros campos como descripción, si es portada, etc.
 
 
@@ -71,5 +80,17 @@ class PreferenciaUsuario(db.Model):
     temperatura_minima = db.Column(db.Integer, nullable=False)
     temperatura_maxima = db.Column(db.Integer, nullable=False)
     usuario = db.relationship('Usuario', backref='preferencias')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class ActividadVista(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'), nullable=False)
+    vistas = db.Column(db.Integer, default=0, nullable=False)
+    fecha_vista = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    usuario = db.relationship('Usuario', backref='vistas_actividades')
+    actividad = db.relationship('ActividadTuristica', backref='vistas_por_usuarios')
+
 
 

@@ -1,0 +1,14 @@
+/* Estilos personalizados para la página de inicio */
+.card-img-top {
+    height: 200px; /* Fija la altura para todas las imágenes de las tarjetas */
+    object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
+}
+
+#explore .card {
+    transition: transform 0.3s ease-in-out;
+}
+
+#explore .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
