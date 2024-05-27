@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, send_from_directory, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
+from flask_wtf import csrf, CSRFProtect
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
@@ -100,50 +101,38 @@ def actividades():
 
 
 
-#AsistenteVirtual
+# <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
     action = req.get('queryResult').get('action')
 
-
     if action == 'consultar_actividades_categoria':
-        return consultar_actividades_por_categoria(req)
+        categoria_nombre = req.get('queryResult', {}).get('parameters', {}).get('categoria', '')
+        return consultar_actividades_por_categoria(categoria_nombre)
+    elif action == 'especificar_categoria':
+        categoria = req.get('queryResult').get('parameters').get('categoria')
+        # Aquí agregarías la lógica para buscar actividades por categoría
+        return jsonify({"fulfillmentText": f"Aquí tienes las actividades relacionadas con la categoría {categoria}."})
 
-    if action == 'dar_consejos':
-        return dar_consejos(req)
+    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
-    return jsonify({})
-
-
-def consultar_actividades_por_categoria(req):
-    parameters = req['queryResult']['parameters']
-    categoria_nombre = parameters.get('categoria')
+def consultar_actividades_por_categoria(categoria_nombre):
     categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
-    if categoria:
-        actividades_info = [
-            "{}: {}, dificultad: {}".format(actividad.nombre, actividad.descripcion_equipamiento, actividad.nivel_dificultad)
-            for actividad in categoria.actividades
-        ]
-        response_text = "Las actividades en la categoría de {} incluyen: {}".format(
-            categoria_nombre, '; '.join(actividades_info)
-        )
+    if categoria and categoria.actividades:
+        actividades = [actividad.nombre for actividad in categoria.actividades]
+        actividades_text = ", ".join(actividades)
+        response_text = f"Actividades en la categoría de {categoria_nombre}: {actividades_text}"
     else:
-        response_text = "Lo siento, no encontré actividades en la categoría de {}".format(categoria_nombre)
-
+        response_text = f"No se encontraron actividades en la categoría de {categoria_nombre}."
     return jsonify({"fulfillmentText": response_text})
 
-
-
-def dar_consejos(req):
-    parameters = req['queryResult']['parameters']
-    actividad_nombre = parameters.get('actividad')
+def dar_consejos(actividad_nombre):
     actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
     if actividad:
-        consejos = "Para participar en {}, se recomienda {} y se debe hacer durante {}. El nivel de dificultad es {}.".format(
+        consejos = "Para participar en {}, se recomienda {}. Realizar durante {}, y el nivel de dificultad es {}.".format(
             actividad.nombre, actividad.requerimiento_guia, actividad.epoca_recomendada, actividad.nivel_dificultad)
         response_text = consejos
     else:
-        response_text = "Lo siento, no encontré información sobre esa actividad."
-
+        response_text = "No se encontró información sobre esa actividad."
     return jsonify({"fulfillmentText": response_text})

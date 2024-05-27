@@ -18,14 +18,13 @@ migrate = Migrate()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
-    csrf = CSRFProtect(app)
     app.config.from_object(config_class)
 
     # Inicializa las extensiones con la aplicación creada
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
-
+    csrf = CSRFProtect(app)
 
     # Importa y registra los blueprints
     from app.admin.routes import admin_bp  # Importa el blueprint de administración
@@ -34,6 +33,10 @@ def create_app(config_class=Config):
     # Si tienes un blueprint para las rutas principales, asegúrate de importarlo y registrar aquí
     from app.routes import main_bp  # Asume que tienes un blueprint 'main_bp' para rutas principales
     app.register_blueprint(main_bp)
+
+    from app.routes import webhook
+    csrf.exempt(webhook)
+
 
     # Importación de modelos y otras configuraciones necesarias
     from app import models
