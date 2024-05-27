@@ -29,8 +29,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('main.index') }}">
-            <img src="https://pngtree.com/freepng/mountain-icon-logo-design-template-vector_5962915.html"
-                 alt="Alps Icon">
+            <img src="{{ url_for('static', filename='logo1.png') }}" alt="Alps Icon" width="40" height="30">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,11 +122,7 @@ $(document).ready(function() {
 
 
 
-<footer class="footer mt-auto py-3 bg-light">
-    <div class="container text-center">
-        <p>&copy; 2023 Mi Aplicación Flask</p>
-    </div>
-</footer>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

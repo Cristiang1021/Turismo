@@ -1,6 +1,6 @@
 from wtforms import PasswordField, HiddenField
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileAllowed
+from flask_wtf.file import FileAllowed, FileRequired
 from wtforms import PasswordField, HiddenField
 from wtforms import StringField, TextAreaField, BooleanField, SubmitField, SelectField, FileField
 from wtforms.validators import DataRequired
@@ -62,6 +62,10 @@ class EditarUsuarioForm(FlaskForm):
 class CategoriaForm(FlaskForm):
     nombre = StringField('Nombre de la categoría', validators=[DataRequired()])
     descripcion = StringField('Descripcion de la categoría', validators=[DataRequired()])
+    imagen = FileField('Imagen', validators=[
+        FileRequired(),
+        FileAllowed(['jpg', 'png'], 'Solo imágenes!')
+    ])
     submit = SubmitField('Guardar Categoría')
 
 

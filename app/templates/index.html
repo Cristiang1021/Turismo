@@ -5,22 +5,27 @@
     <section class="text-center mb-5">
         <h1 class="display-4 font-weight-bold">Descubre las mejores actividades para tu próxima aventura</h1>
         <p class="lead text-muted">Explora un mundo de actividades emocionantes y crea recuerdos inolvidables. Encuentra la experiencia perfecta para tu próximo viaje.</p>
-        <a href="#explore" class="btn btn-primary btn-lg">Explorar actividades</a>
+        <a href="actividades" class="btn btn-primary btn-lg">Explorar actividades</a>
     </section>
 
     <section id="explore" class="mb-5">
         <h2 class="text-center mb-4">Categorías</h2>
         <div class="row">
             <!-- This part will be populated by Flask and Jinja -->
-            <ul>
-                {% if categories %}
-                    {% for category in categories %}
-                        <li>{{ category.nombre }}</li>
-                    {% endfor %}
-                {% else %}
-                    <li>No hay categorías disponibles.</li>
-                {% endif %}
-            </ul>
+            {% for categoria in categorias %}
+<div class="col-md-6 col-lg-3">
+    <div class="card">
+        <img src="{{ categoria.image_url }}" class="card-img-top" alt="{{ categoria.nombre }}">
+
+        <div class="card-body">
+            <h5 class="card-title">{{ categoria.nombre }}</h5>
+            <p class="card-text">{{ categoria.descripcion }}</p>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
         </div>
     </section>
 </main>

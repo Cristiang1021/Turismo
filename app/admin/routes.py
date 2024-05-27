@@ -33,6 +33,19 @@ def logout():
     return redirect(url_for('main.index'))  # Asegúrate de cambiar 'main.index' al endpoint correcto.
 
 
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+
+def save_image(file):
+    if file and allowed_file(file.filename):
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        filename = f"{timestamp}_{secure_filename(file.filename)}"
+        file_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+        file.save(file_path)
+        return url_for('static', filename=f'uploads/{filename}')
+    return None
+
 @admin_bp.route('/usuarios')
 @login_required
 def usuarios():
@@ -113,24 +126,58 @@ def listar_categorias():
 def crear_categoria():
     form = CategoriaForm()
     if form.validate_on_submit():
-        categoria = Categoria(nombre=form.nombre.data, descripcion=form.descripcion.data)
-        db.session.add(categoria)
-        db.session.commit()
-        flash('Categoría creada con éxito.')
-        return redirect(url_for('admin.listar_categorias'))
+        nombre = form.nombre.data
+        descripcion = form.descripcion.data
+        imagen = form.imagen.data  # Acceder al archivo cargado
+
+        imagen_url = save_image(imagen)  # Guarda la imagen y obtén la URL
+
+        if imagen_url:
+            nueva_categoria = Categoria(nombre=nombre, descripcion=descripcion, image_url=imagen_url)
+            db.session.add(nueva_categoria)
+            db.session.commit()
+            flash('Categoría creada con éxito.', 'success')
+            return redirect(url_for('admin.listar_categorias'))
+        else:
+            flash('Error al guardar la imagen.', 'error')
+
     return render_template('admin/crear_categoria.html', form=form)
+
+
+
 
 @admin_bp.route('/categorias/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
 def editar_categoria(id):
     categoria = Categoria.query.get_or_404(id)
     form = CategoriaForm(obj=categoria)
+
     if form.validate_on_submit():
         form.populate_obj(categoria)
-        db.session.commit()
-        flash('Categoría actualizada con éxito!', 'success')
-        return redirect(url_for('admin.listar_categorias'))
+
+        # Manejo de eliminación de imagen
+        if 'delete_image' in request.form and request.form['delete_image'] == '1':
+            categoria.image_url = None
+
+        # Manejo de carga de nueva imagen
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename != '':
+                image_url = save_image(file)
+                if image_url:
+                    categoria.image_url = image_url
+
+        try:
+            db.session.commit()
+            flash('Categoría actualizada con éxito!', 'success')
+            return redirect(url_for('admin.listar_categorias'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar la categoría: {e}', 'danger')
+
     return render_template('admin/editar_categoria.html', form=form, categoria=categoria)
+
+
 
 
 @admin_bp.route('/categorias/eliminar/<int:id>', methods=['POST'])
@@ -150,22 +197,6 @@ def listar_actividades():
     page = request.args.get('page', 1, type=int)
     actividades = ActividadTuristica.query.paginate(page=page, per_page=6)
     return render_template('admin/actividades.html', actividades=actividades)
-
-
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
-
-def save_image(file):
-    if file and allowed_file(file.filename):
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = f"{timestamp}_{secure_filename(file.filename)}"
-        file_path = os.path.join(current_app.root_path, 'static', 'uploads', filename)
-        file.save(file_path)
-        return url_for('static', filename=f'uploads/{filename}')
-    return None
-
-
 
 def process_images(form, request, actividad):
     if request.method == 'POST' and 'new_images' in request.files:
