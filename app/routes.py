@@ -105,39 +105,35 @@ def actividades():
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
-
+    
     # Asegurar que 'queryResult' y 'action' existen
     query_result = req.get('queryResult', {})
     action = query_result.get('action', None)
 
     # Si no hay acción, devuelve un mensaje de error más informativo
     if not action:
-        return jsonify({"fulfillmentText": "No action provided in the request."})
+        return jsonify({"fulfillmentText": "No action provided in the request. Please check the action settings in Dialogflow."})
 
     # Manejar las acciones según lo configurado
     if action == 'consultar_actividades':
         categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
         return consultar_actividades(categoria_nombre)
-    elif action == 'especificar_categoria':
-        categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
-        return consultar_actividades(categoria_nombre)
 
     return jsonify({"fulfillmentText": "Action not handled by the webhook."})
-
 
 def consultar_actividades(categoria_nombre):
     if categoria_nombre == 'general':
         actividades = ActividadTuristica.query.all()
         actividades_text = ', '.join([actividad.nombre for actividad in actividades])
-        response_text = f"Todas las actividades: {actividades_text}"
+        response_text = f"All activities: {actividades_text}"
     else:
         categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
         if categoria and categoria.actividades:
             actividades = [actividad.nombre for actividad in categoria.actividades]
             actividades_text = ", ".join(actividades)
-            response_text = f"Actividades en la categoría de {categoria_nombre}: {actividades_text}"
+            response_text = f"Activities in the category {categoria_nombre}: {actividades_text}"
         else:
-            response_text = f"No se encontraron actividades en la categoría de {categoria_nombre}."
+            response_text = f"No activities found in the category {categoria_nombre}."
     return jsonify({"fulfillmentText": response_text})
 
 def dar_consejos(actividad_nombre):
