@@ -41,7 +41,7 @@ def login():
             else:
                 return redirect(next_page) if next_page else redirect(url_for('main.index'))
         else:
-            flash('Login unsuccessful. Please check email and password', 'danger')
+            flash('No se ha podido iniciar sesión. Por favor revisa el correo electrónico y la contraseña', 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
@@ -124,7 +124,7 @@ def webhook():
 def consultar_actividades(categoria_nombre):
     if categoria_nombre == 'general':
         actividades = ActividadTuristica.query.all()
-        actividades_text = "\n- ".join([actividad.nombre for actividad in actividades])
+        actividades_text = "\n ".join([actividad.nombre for actividad in actividades])
         response_text = f"Todas las actividades: {actividades_text}"
     else:
         categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
