@@ -114,16 +114,13 @@ def webhook():
 
     action = query_result.get('action')
     if action == 'consultar_actividades':
-        categoria_nombre = query_result.get('parameters', {}).get('categoria', '')
-        return consultar_actividades(categoria_nombre)
-    elif action == 'especificar_categoria':
-        categoria = query_result.get('parameters').get('categoria')
-        # Aquí agregarías la lógica para buscar actividades por categoría
-        return jsonify({"fulfillmentText": f"Aquí tienes las actividades relacionadas con la categoría {categoria}."})
+        # No hay parámetro de categoría en este punto, así que debemos pedirlo al usuario
+        return jsonify({"fulfillmentText": "¿Qué categoría deseas buscar?"})
 
     return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
 def consultar_actividades(categoria_nombre):
+    # Esta función se llamará cuando el usuario proporcione la categoría
     categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
     if categoria and categoria.actividades:
         actividades = [actividad.nombre for actividad in categoria.actividades]
