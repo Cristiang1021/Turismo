@@ -121,7 +121,7 @@ def webhook():
         # Aquí agregarías la lógica para buscar actividades por categoría
         return jsonify({"fulfillmentText": f"Aquí tienes las actividades relacionadas con la categoría {categoria}."})
 
-    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicituddddd."})
 
 def consultar_actividades(categoria_nombre):
     categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
