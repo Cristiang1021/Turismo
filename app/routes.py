@@ -106,11 +106,11 @@ def actividades():
 def webhook():
     req = request.get_json(force=True)
     if 'queryResult' not in req:
-        return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+        return jsonify({"fulfillmentText": "Error en if if 'queryResult' not in req:"})
 
     query_result = req.get('queryResult')
     if 'action' not in query_result:
-        return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+        return jsonify({"fulfillmentText": "Error en if 'action' not in query_result."})
 
     action = query_result.get('action')
     if action == 'consultar_actividades':
