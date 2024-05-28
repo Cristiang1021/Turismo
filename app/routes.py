@@ -105,29 +105,39 @@ def actividades():
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
-    if 'queryResult' not in req:
-        return jsonify({"fulfillmentText": "Error en if if 'queryResult' not in req:"})
 
-    query_result = req.get('queryResult')
-    if 'action' not in query_result:
-        return jsonify({"fulfillmentText": "Error en if 'action' not in query_result."})
+    # Asegurar que 'queryResult' y 'action' existen
+    query_result = req.get('queryResult', {})
+    action = query_result.get('action', None)
 
-    action = query_result.get('action')
+    # Si no hay acción, devuelve un mensaje de error más informativo
+    if not action:
+        return jsonify({"fulfillmentText": "No action provided in the request."})
+
+    # Manejar las acciones según lo configurado
     if action == 'consultar_actividades':
-        # No hay parámetro de categoría en este punto, así que debemos pedirlo al usuario
-        return jsonify({"fulfillmentText": "¿Qué categoría deseas buscar?"})
+        categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
+        return consultar_actividades(categoria_nombre)
+    elif action == 'especificar_categoria':
+        categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
+        return consultar_actividades(categoria_nombre)
 
-    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+    return jsonify({"fulfillmentText": "Action not handled by the webhook."})
+
 
 def consultar_actividades(categoria_nombre):
-    # Esta función se llamará cuando el usuario proporcione la categoría
-    categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
-    if categoria and categoria.actividades:
-        actividades = [actividad.nombre for actividad in categoria.actividades]
-        actividades_text = ", ".join(actividades)
-        response_text = f"Actividades en la categoría de {categoria_nombre}: {actividades_text}"
+    if categoria_nombre == 'general':
+        actividades = ActividadTuristica.query.all()
+        actividades_text = ', '.join([actividad.nombre for actividad in actividades])
+        response_text = f"Todas las actividades: {actividades_text}"
     else:
-        response_text = f"No se encontraron actividades en la categoría de {categoria_nombre}."
+        categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
+        if categoria and categoria.actividades:
+            actividades = [actividad.nombre for actividad in categoria.actividades]
+            actividades_text = ", ".join(actividades)
+            response_text = f"Actividades en la categoría de {categoria_nombre}: {actividades_text}"
+        else:
+            response_text = f"No se encontraron actividades en la categoría de {categoria_nombre}."
     return jsonify({"fulfillmentText": response_text})
 
 def dar_consejos(actividad_nombre):
