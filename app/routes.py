@@ -105,13 +105,19 @@ def actividades():
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
-    action = req.get('queryResult').get('action')
+    if 'queryResult' not in req:
+        return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
+    query_result = req.get('queryResult')
+    if 'action' not in query_result:
+        return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+
+    action = query_result.get('action')
     if action == 'consultar_actividades':
-        categoria_nombre = req.get('queryResult', {}).get('parameters', {}).get('categoria', '')
+        categoria_nombre = query_result.get('parameters', {}).get('categoria', '')
         return consultar_actividades(categoria_nombre)
     elif action == 'especificar_categoria':
-        categoria = req.get('queryResult').get('parameters').get('categoria')
+        categoria = query_result.get('parameters').get('categoria')
         # Aquí agregarías la lógica para buscar actividades por categoría
         return jsonify({"fulfillmentText": f"Aquí tienes las actividades relacionadas con la categoría {categoria}."})
 
