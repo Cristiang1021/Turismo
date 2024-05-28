@@ -124,16 +124,16 @@ def webhook():
 def consultar_actividades(categoria_nombre):
     if categoria_nombre == 'general':
         actividades = ActividadTuristica.query.all()
-        actividades_text = ', '.join([actividad.nombre for actividad in actividades])
-        response_text = f"All activities: {actividades_text}"
+        actividades_text = "\n- ".join([actividad.nombre for actividad in actividades])
+        response_text = f"Todas las actividades: {actividades_text}"
     else:
         categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
         if categoria and categoria.actividades:
             actividades = [actividad.nombre for actividad in categoria.actividades]
-            actividades_text = ", ".join(actividades)
-            response_text = f"Activities in the category {categoria_nombre}: {actividades_text}"
+            actividades_text = "\n- ".join(actividades)
+            response_text = f"Actividades en la categoría: {categoria_nombre}: {actividades_text}"
         else:
-            response_text = f"No activities found in the category {categoria_nombre}."
+            response_text = f"No se han encontrado actividades en la categoría: {categoria_nombre}."
     return jsonify({"fulfillmentText": response_text})
 
 def dar_consejos(actividad_nombre):
