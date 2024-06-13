@@ -4,11 +4,11 @@
 <div class="container mt-5">
     <h2>Editar Categoría</h2>
 
-    {% if categoria.image_url %}
+
+    {% if categoria.image_data %}
         <div class="image-gallery mb-3">
-            <div class="image-container">
-                <img src="{{ categoria.image_url }}" alt="Imagen Actual" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                <button type="button" class="delete-image-btn btn btn-danger btn-sm">Eliminar Imagen</button>
+            <div class="image-container" style="position: relative; display: inline-block;">
+                <img src="{{ url_for('admin.get_categoria_image', id=categoria.id) }}" alt="Imagen Actual" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                 <input type="checkbox" name="delete_image" value="1" style="display: none;">
             </div>
         </div>

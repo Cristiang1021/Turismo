@@ -1,45 +1,40 @@
 {% extends "base.html" %}
-
-{% block title %}Configuración de Preferencias{% endblock %}
-
 {% block content %}
-<div class="container">
-    <h2>Configura tus preferencias de actividades turísticas</h2>
-    <form action="" method="post" novalidate>
+<div class="container mt-5">
+    <h2>Responde estas preguntas para obtener recomendaciones personalizadas</h2>
+    <form method="POST" action="{{ url_for('main.recomendaciones') }}">
         {{ form.hidden_tag() }}
-
         <div class="form-group">
-            {{ form.nivel_dificultad.label(class="form-label") }}
-            {{ form.nivel_dificultad(class="form-control") }}
+            {{ form.pregunta1.label }}<br>
+            {{ form.pregunta1(class='form-check-input') }} {{ form.pregunta1(class='form-check-label') }}
+        </div>
+        <div class="form-group">
+            {{ form.pregunta2.label }}<br>
+            {{ form.pregunta2(class='form-check-input') }} {{ form.pregunta2(class='form-check-label') }}
+        </div>
+        <div class="form-group">
+            {{ form.pregunta3.label }}<br>
+            {{ form.pregunta3(class='form-check-input') }} {{ form.pregunta3(class='form-check-label') }}
+        </div>
+        <div class="form-group">
+            {{ form.pregunta4.label }}<br>
+            {{ form.pregunta4(class='form-check-input') }} {{ form.pregunta4(class='form-check-label') }}
+        </div>
+        <div class="form-group">
+            {{ form.pregunta5.label }}<br>
+            {{ form.pregunta5(class='form-check-input') }} {{ form.pregunta5(class='form-check-label') }}
+        </div>
+        <div class="form-group">
+            {{ form.pregunta6.label }}<br>
+            {{ form.pregunta6(class='form-check-input') }} {{ form.pregunta6(class='form-check-label') }}
+        </div>
+        <div class="form-group">
+            {{ form.pregunta7.label }}<br>
+            {{ form.pregunta7(class='form-check-input') }} {{ form.pregunta7(class='form-check-label') }}
         </div>
 
         <div class="form-group">
-            {{ form.tipo_superficie.label(class="form-label") }}
-            {{ form.tipo_superficie(class="form-control") }}
-        </div>
-
-        <div class="form-group">
-            {{ form.temperatura_minima.label(class="form-label") }}
-            {{ form.temperatura_minima(class="form-control") }}
-            {% if form.temperatura_minima.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ form.temperatura_minima.errors[0] }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            {{ form.temperatura_maxima.label(class="form-label") }}
-            {{ form.temperatura_maxima(class="form-control") }}
-            {% if form.temperatura_maxima.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ form.temperatura_maxima.errors[0] }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            {{ form.submit(class="btn btn-primary") }}
+            {{ form.submit(class='btn btn-primary') }}
         </div>
     </form>
 </div>

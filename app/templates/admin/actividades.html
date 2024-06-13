@@ -7,6 +7,7 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>Vista</th>
                 <th>Nombre</th>
                 <th>Categoría</th>
                 <th>Descripción</th>
@@ -16,6 +17,13 @@
         <tbody>
             {% for actividad in actividades %}
             <tr>
+                <td>
+                    {% if actividad.imagenes %}
+                    <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" alt="{{ actividad.nombre }}" style="height: 60px; width: auto;">
+                    {% else %}
+                    <img src="https://via.placeholder.com/60" alt="No image available" style="height: 60px; width: auto;">
+                    {% endif %}
+                </td>
                 <td>{{ actividad.nombre }}</td>
                 <td>{{ actividad.categoria.nombre }}</td>
                 <td>{{ actividad.descripcion_equipamiento|truncate(120) }}</td>
@@ -31,19 +39,17 @@
         </tbody>
     </table>
     <nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        {%- for page_num in actividades.iter_pages() %}
-        {% if actividades.page == page_num %}
-        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
-        {% elif page_num %}
-        <li class="page-item"><a class="page-link" href="{{ url_for('admin.listar_actividades', page=page_num) }}">{{ page_num }}</a></li>
-        {% else %}
-        <li class="page-item disabled"><span class="page-link">…</span></li>
-        {% endif %}
-        {%- endfor %}
-    </ul>
-</nav>
+        <ul class="pagination justify-content-center">
+            {%- for page_num in actividades.iter_pages() %}
+            {% if actividades.page == page_num %}
+            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+            {% elif page_num %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('admin.listar_actividades', page=page_num) }}">{{ page_num }}</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+            {%- endfor %}
+        </ul>
+    </nav>
 </div>
-
-
 {% endblock %}

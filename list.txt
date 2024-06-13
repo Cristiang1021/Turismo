@@ -1,0 +1,6 @@
+﻿
+Count Name                      Group                                                                                  
+----- ----                      -----                                                                                  
+ 4163                           {C:/Users/andre/Desktop/U/tessis/venv/Lib/site-packages/setuptools/monkey.py, C:/Use...
+
+

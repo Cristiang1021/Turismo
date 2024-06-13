@@ -7,28 +7,75 @@
     <table class="table">
         <thead>
             <tr>
+                <th>Vista</th>
                 <th>Nombre</th>
-                <th>Descripcion</th>
+                <th>Descripción</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for categoria in categorias %}
             <tr>
+                <td>
+                    {% if categoria.image_data %}
+                    <img src="{{ url_for('main.get_categoria_image', id=categoria.id) }}" alt="{{ categoria.nombre }}" style="height: 60px; width: auto;">
+                    {% else %}
+                    <img src="https://via.placeholder.com/60" alt="No image available" style="height: 60px; width: auto;">
+                    {% endif %}
+                </td>
                 <td>{{ categoria.nombre }}</td>
                 <td>{{ categoria.descripcion }}</td>
                 <td>
-                    <a href="{{ url_for('admin.editar_categoria', id=categoria.id) }}"class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
-
-                    <form action="{{ url_for('admin.eliminar_categoria', id=categoria.id) }}" method="post" class="d-inline">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar esta categoría?');"><i class="fas fa-trash-alt"></i></button>
-</form>
-
+                    <a href="{{ url_for('admin.editar_categoria', id=categoria.id) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
+                    <button type="button" class="btn btn-danger delete-btn" data-id="{{ categoria.id }}"><i class="fas fa-trash-alt"></i></button>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function(event) {
+        const categoryId = this.getAttribute('data-id');
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminarlo',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/admin/categorias/eliminar/${categoryId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token() }}',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire(
+                            'Eliminado',
+                            'La categoría ha sido eliminada.',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'Asegúrate de eliminar todas las actividades asociadas a esta categoría antes de eliminarla.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

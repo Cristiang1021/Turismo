@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-5">
     <h1>Actividades Disponibles</h1>
     <div class="row">
         {% for actividad in actividades %}
-        <div class="col-md-4">
-            <div class="card mb-4 shadow-sm">
-                <img src="{{ actividad.imagenes[0].url if actividad.imagenes else 'https://via.placeholder.com/150' }}" alt="Imagen de {{ actividad.nombre }}">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if actividad.imagenes %}
+                    <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
                 <div class="card-body">
-                    <p class="card-text">{{ actividad.nombre }}</p>
+                    <h5 class="card-title">{{ actividad.nombre }}</h5>
+                    <p class="card-text">{{ actividad.descripcion_equipamiento }}</p>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="btn-group">
-                            <a href="" class="btn btn-sm btn-outline-secondary">Ver más</a>
-                        </div>
+                        <a href="#" class="btn btn-primary btn-sm">Ver más</a>
                         <small class="text-muted">{{ actividad.nivel_dificultad }}</small>
                     </div>
                 </div>

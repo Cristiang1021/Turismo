@@ -20,6 +20,63 @@
     margin-left: 3%
 }
 
+/* Estilos personalizados */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-img-top {
+    object-fit: cover;
+}
+
+.toast-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    min-width: 300px;
+    border-radius: 10px;
+}
+
+.toast-header {
+    border-bottom: none;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.toast-body {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+
+.toast .toast-body {
+    font-size: 16px;
+}
+
+.toast .btn-close {
+    filter: invert(1);
+}
 
 
 .form-data-section {
@@ -99,4 +156,29 @@
 .btn-danger {
   background-color: #dc3545;
   border-color: #dc3545;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-check {
+    margin-bottom: 1rem;
+}
+
+.form-check-label {
+    margin-left: 0.5rem;
+}
+
+#edit-category-form .form-check {
+    display: flex;
+    align-items: center;
+}
+
+#edit-category-form .form-check input[type="checkbox"] {
+    margin-left: 0;
+}
+
+.btn {
+    margin-top: 1rem;
 }

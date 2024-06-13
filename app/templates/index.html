@@ -1,32 +1,181 @@
+<!-- app/templates/index.html -->
 {% extends "base.html" %}
 
+{% block title %}San Andrés{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+{% endblock %}
+
 {% block content %}
-<main class="container mt-5">
-    <section class="text-center mb-5">
-        <h1 class="display-4 font-weight-bold">Descubre las mejores actividades para tu próxima aventura</h1>
-        <p class="lead text-muted">Explora un mundo de actividades emocionantes y crea recuerdos inolvidables. Encuentra la experiencia perfecta para tu próximo viaje.</p>
-        <a href="actividades" class="btn btn-primary btn-lg">Explorar actividades</a>
-    </section>
-
-    <section id="explore" class="mb-5">
-        <h2 class="text-center mb-4">Categorías</h2>
-        <div class="row">
-            <!-- This part will be populated by Flask and Jinja -->
-            {% for categoria in categorias %}
-<div class="col-md-6 col-lg-3">
-    <div class="card">
-        <img src="{{ categoria.image_url }}" class="card-img-top" alt="{{ categoria.nombre }}">
-
-        <div class="card-body">
-            <h5 class="card-title">{{ categoria.nombre }}</h5>
-            <p class="card-text">{{ categoria.descripcion }}</p>
-        </div>
+<!-- Sección con la imagen y el texto superpuesto -->
+<section class="position-relative text-center mb-2" style="height: 550px">
+    <img src="{{ url_for('static', filename='img/image.jpg') }}" class="img-fluid w-100 h-100" alt="Explore" style="object-fit: cover;">
+    <div class="overlay">
+        <h1 class="display-4 font-weight-bold text-white">Descubre las mejores actividades para tu próxima aventura</h1>
+        <p class="lead text-white">Explora un mundo de actividades emocionantes y crea recuerdos inolvidables. <br> Encuentra la experiencia perfecta para tu próximo viaje.</p>
+        <a href="#actividades" class="btn btn-primary btn-lg">Explorar actividades</a>
+        <a href="#view-all" class="btn btn-outline-secondary btn-lg">Ver Todo</a>
     </div>
-</div>
-{% endfor %}
+</section>
 
-
+<main class="container mt-5">
+    <!-- Sección de Categorías Populares -->
+    <section id="explore" class="mb-5 text-center">
+        <h2 class="mb-4">Categorías Populares</h2>
+        <p class="lead text-muted">Descubre una amplia gama de actividades en diferentes categorías para adaptarse a tus intereses y preferencias.</p>
+        <div class="carousel-categories">
+            {% for categoria in categorias %}
+            <div class="p-2">
+                <div class="card h-100 shadow-sm">
+                    <a href="{{ url_for('main.actividades_por_categoria', categoria_id=categoria.id) }}">
+                        <img src="{{ url_for('main.get_categoria_image', id=categoria.id) }}" class="card-img-top" alt="{{ categoria.nombre }}" style="height: 200px; object-fit: cover;">
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ categoria.nombre }}</h5>
+                        <p class="card-text">{{ categoria.descripcion }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </section>
+
+    <!-- Sección de Buscador -->
+    <section id="search" class="mb-5 text-center">
+        <h2 class="mb-4">Encuentra la Actividad Perfecta</h2>
+        <p class="lead text-muted">Busca en nuestra extensa base de datos de actividades y encuentra la mejor opción para tu próxima aventura.</p>
+        <form class="form-inline justify-content-center">
+            <input class="form-control form-control-lg mr-sm-2" type="search" placeholder="Buscar actividades..." aria-label="Search">
+            <button class="btn btn-primary btn-lg my-2 my-sm-0" type="submit">Buscar</button>
+        </form>
+    </section>
+
+     <!-- Sección de Actividades Destacadas -->
+    <section id="featured" class="mb-5 text-center">
+        <h2 class="mb-4">Actividades Destacadas</h2>
+        <p class="lead text-muted">Consulta nuestras actividades mejor valoradas, perfectas para tu próxima aventura.</p>
+        <div class="carousel-featured">
+            {% if recomendaciones %}
+                {% for actividad in recomendaciones %}
+                <div class="p-2">
+                    <div class="card h-100 shadow-sm">
+                        <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Actividad Recomendada">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ actividad.nombre }}</h5>
+                            <p class="card-text">{{ actividad.descripcion_equipamiento[:100] }}...</p>
+                            <a href="#" class="btn btn-primary btn-sm">Ver más</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay actividades recomendadas en este momento.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Sección de Actividades Disponibles -->
+    <!--
+    <section id="activities" class="mb-5 text-center">
+        <h2 class="mb-4">Actividades Disponibles</h2>
+        <div class="carousel-activities">
+            {% for actividad in actividades %}
+            <div class="p-2">
+                <div class="card h-100 shadow-sm">
+                    {% if actividad.imagenes %}
+                        <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ actividad.nombre }}</h5>
+                        <p class="card-text">{{ actividad.descripcion_equipamiento[:100] }}...</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="#" class="btn btn-primary btn-sm">Ver más</a>
+                            <small class="text-muted">{{ actividad.nivel_dificultad }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section> -->
 </main>
+
+
+<footer class="footer mt-5 py-4 bg-light">
+    <div class="container text-center">
+        <p>&copy; 2024 San Andrés. Todos los derechos reservados.</p>
+    </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('.carousel-categories').slick({
+            infinite: true,
+            slidesToShow: 4,
+            slidesToScroll: 1,
+            arrows: true,
+            dots: true,
+            responsive: [
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 1,
+                        infinite: true,
+                        dots: true
+                    }
+                },
+                {
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 480,
+                    settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                    }
+                }
+            ]
+        });
+
+        $('.carousel-featured, .carousel-activities').slick({
+            infinite: true,
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            arrows: true,
+            dots: true,
+            responsive: [
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1,
+                        infinite: true,
+                        dots: true
+                    }
+                },
+                {
+                    breakpoint: 600,
+                    settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                    }
+                }
+            ]
+        });
+    });
+</script>
 {% endblock %}
