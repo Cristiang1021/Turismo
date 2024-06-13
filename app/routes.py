@@ -343,7 +343,7 @@ def consultar_actividades(categoria_nombre):
     if categoria_nombre == 'general':
         actividades = ActividadTuristica.query.all()
         actividades_text = "\n ".join([actividad.nombre for actividad in actividades])
-        response_text = f"Todas las actividades: {actividades_text}"
+        response_text = f"Todas las aactividades: {actividades_text}"
 
     else:
         categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
