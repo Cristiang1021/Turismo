@@ -271,21 +271,6 @@ def query_gpt4(question, context, max_context_length=2000):
 
 
 
-@main_bp.route('/profile')
-@login_required
-def profile():
-    return render_template('perfil.html', user=current_user)
-
-
-
-@main_bp.route('/cambiar_contraseña', methods=['GET', 'POST'])
-@login_required
-def cambiar_contraseña():
-    # Lógica para cambiar la contraseña
-    return render_template('cambiar_contraseña.html')
-
-
-
 # Función para extraer texto del PDF desde una ruta local
 def extract_text_from_pdf_local(pdf_path):
     try:

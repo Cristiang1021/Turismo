@@ -42,12 +42,3 @@ class RecomendacionForm(FlaskForm):
     pregunta7 = RadioField('Precio', choices=[('Menos de $50', 'Menos de $50'), ('$50-$100', '$50-$100'), ('Más de $100', 'Más de $100')], validators=[DataRequired()])
     submit = SubmitField('Enviar')
 
-class RecomendacionForm(FlaskForm):
-    pregunta1 = RadioField('Tipo de actividad', choices=[('Aventura', 'Aventura'), ('Fotografía', 'Fotografía'), ('Deportes', 'Deportes'), ('Recreación', 'Recreación'), ('Senderismo', 'Senderismo')], validators=[DataRequired()])
-    pregunta2 = RadioField('Nivel de dificultad', choices=[('Fácil', 'Fácil'), ('Moderado', 'Moderado'), ('Difícil', 'Difícil')], validators=[DataRequired()])
-    pregunta3 = RadioField('Nivel físico requerido', choices=[('Bajo', 'Bajo'), ('Medio', 'Medio'), ('Alto', 'Alto')], validators=[DataRequired()])
-    pregunta4 = RadioField('Duración de la actividad', choices=[('Menos de 2 horas', 'Menos de 2 horas'), ('2-4 horas', '2-4 horas'), ('Más de 4 horas', 'Más de 4 horas')], validators=[DataRequired()])
-    pregunta5 = RadioField('Requiere guía', choices=[('Sí', 'Sí'), ('No', 'No')], validators=[DataRequired()])
-    pregunta6 = RadioField('Época recomendada', choices=[('Todo el año', 'Todo el año'), ('Invierno', 'Invierno'), ('Verano', 'Verano')], validators=[DataRequired()])
-    pregunta7 = RadioField('Precio', choices=[('Menos de $50', 'Menos de $50'), ('$50-$100', '$50-$100'), ('Más de $100', 'Más de $100')], validators=[DataRequired()])
-    submit = SubmitField('Enviar')

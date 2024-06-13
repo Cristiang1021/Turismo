@@ -107,21 +107,6 @@ class ActividadVista(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
 
-class RespuestasFormulario(db.Model):
-    __tablename__ = 'respuestas_formulario'
-    id = db.Column(db.Integer, primary_key=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
-    pregunta1 = db.Column(db.String(50), nullable=False)
-    pregunta2 = db.Column(db.String(50), nullable=False)
-    pregunta3 = db.Column(db.String(50), nullable=False)
-    pregunta4 = db.Column(db.String(50), nullable=False)
-    pregunta5 = db.Column(db.String(50), nullable=False)
-    pregunta6 = db.Column(db.String(50), nullable=False)
-    pregunta7 = db.Column(db.String(50), nullable=False)
-
-    def __repr__(self):
-        return f"<RespuestasFormulario {self.id}>"
-
 class ActividadRecomendada(db.Model):
     __tablename__ = 'actividad_recomendada'
     id = db.Column(db.Integer, primary_key=True)
