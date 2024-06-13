@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Recomendaciones{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <h1>Descubre tu plan ideal</h1>
+    </div>
+    <div class="card shadow mt-4">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.recomendaciones') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="form-step form-step-active">
+                    <div class="form-group">
+                        {{ form.pregunta1.label(class="form-label font-weight-bold") }}
+                        {{ form.pregunta1(class="form-check-input") }}
+                    </div>
+                </div>
+
+                <div class="form-step">
+                    <div class="form-group">
+                        {{ form.pregunta2.label(class="form-label font-weight-bold") }}
+                        {{ form.pregunta2(class="form-check-input") }}
+                    </div>
+                </div>
+
+                <div class="form-step">
+                    <div class="form-group">
+                        {{ form.pregunta3.label(class="form-label font-weight-bold") }}
+                        {{ form.pregunta3(class="form-check-input") }}
+                    </div>
+                </div>
+
+                <div class="form-step">
+                    <div class="form-group">
+                        {{ form.pregunta4.label(class="form-label font-weight-bold") }}
+                        {{ form.pregunta4(class="form-check-input") }}
+                    </div>
+                </div>
+
+                <div class="form-step">
+                    <div class="form-group">
+                        {{ form.pregunta5.label(class="form-label font-weight-bold") }}
+                        {{ form.pregunta5(class="form-check-input") }}
+                    </div>
+                </div>
+
+                <div class="form-step">
+                    <div class="form-group">
+                        {{ form.pregunta6.label(class="form-label font-weight-bold") }}
+                        {{ form.pregunta6(class="form-check-input") }}
+                    </div>
+                </div>
+
+                <div class="form-step">
+                    <div class="form-group">
+                        {{ form.pregunta7.label(class="form-label font-weight-bold") }}
+                        {{ form.pregunta7(class="form-check-input") }}
+                    </div>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" class="btn btn-secondary btn-prev">Anterior</button>
+                    <button type="button" class="btn btn-primary btn-next">Siguiente</button>
+                    <button type="submit" class="btn btn-primary btn-submit">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const steps = Array.from(document.querySelectorAll(".form-step"));
+        const nextBtn = document.querySelectorAll(".btn-next");
+        const prevBtn = document.querySelectorAll(".btn-prev");
+        const submitBtn = document.querySelector(".btn-submit");
+
+        let currentStep = 0;
+
+        nextBtn.forEach(button => {
+            button.addEventListener("click", () => {
+                if (currentStep < steps.length - 1) {
+                    steps[currentStep].classList.remove("form-step-active");
+                    currentStep++;
+                    steps[currentStep].classList.add("form-step-active");
+                }
+                updateButtons();
+            });
+        });
+
+        prevBtn.forEach(button => {
+            button.addEventListener("click", () => {
+                if (currentStep > 0) {
+                    steps[currentStep].classList.remove("form-step-active");
+                    currentStep--;
+                    steps[currentStep].classList.add("form-step-active");
+                }
+                updateButtons();
+            });
+        });
+
+        function updateButtons() {
+            if (currentStep === 0) {
+                prevBtn.forEach(button => button.style.display = "none");
+            } else {
+                prevBtn.forEach(button => button.style.display = "inline-block");
+            }
+
+            if (currentStep === steps.length - 1) {
+                nextBtn.forEach(button => button.style.display = "none");
+                submitBtn.style.display = "inline-block";
+            } else {
+                nextBtn.forEach(button => button.style.display = "inline-block");
+                submitBtn.style.display = "none");
+            }
+        }
+
+        updateButtons();
+    });
+</script>
+<style>
+    .form-step {
+        display: none;
+    }
+
+    .form-step-active {
+        display: block;
+    }
+
+    .form-navigation {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .btn-submit {
+        display: none;
+    }
+</style>
+{% endblock %}

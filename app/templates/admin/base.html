@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración</title>
+    <title>{% block title %}{% endblock %} - Admin Dashboard</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="/static/css/admin_styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
+    <style>
+        .toast {
+            max-width: 350px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -55,6 +61,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}" target="_blank">
+                            <i class="fas fa-globe"></i> Página princpal
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('admin.logout') }}">
                             <i class="fas fa-sign-out-alt"></i> Cerrar sesión
                         </a>
@@ -76,52 +87,30 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
-    <!-- Contenedor para toasts -->
-     <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-                <div class="toast-header">
-                    <strong class="mr-auto text-primary">Mensaje</strong>
-                    <small>Justo ahora</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="toast-body">
-                    {{ message }}
-                </div>
-            </div>
-        {% endfor %}
-        {% endwith %}
+<!-- Contenedor para toasts -->
+<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+        <div class="toast-header">
+            <strong class="mr-auto text-primary">Mensaje</strong>
+            <small>Justo ahora</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            {{ message }}
+        </div>
     </div>
+    {% endfor %}
+    {% endwith %}
+</div>
 
-     <script>
-        $(document).ready(function() {
-            $('.toast').toast('show');
-        });
-        </script>
-
-    <script>
-    document.querySelectorAll('.toggle-password').forEach(function(button) {
-        button.addEventListener('click', function() {
-            let input = this.parentNode.previousElementSibling; // Selecciona el input anterior
-            if (input.type === "password") {
-                input.type = "text";
-                this.innerHTML = '<i class="fas fa-eye-slash"></i>'; // Cambia el ícono a ojo cerrado
-            } else {
-                input.type = "password";
-                this.innerHTML = '<i class="fas fa-eye"></i>'; // Cambia el ícono a ojo abierto
-            }
-        });
+<script>
+    $(document).ready(function() {
+        $('.toast').toast('show');
     });
-
-    </script>
-
-
-    </body>
-    </html>
-
-
-
+</script>
+</body>
+</html>

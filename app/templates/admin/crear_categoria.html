@@ -1,40 +1,68 @@
 {% extends 'admin/base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Agregar Categoría</h2>
-    <form action="{{ url_for('admin.crear_categoria') }}" method="post" enctype="multipart/form-data">
+<div class="container mt-4">
+    <h2>Crear Categoría</h2>
+    <form id="create-category-form" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="form-row">
         <div class="form-group col-md-6">
             {{ form.nombre.label(class="form-label") }}
-            {{ form.nombre(class="form-control", required=True) }}
-            {% if form.nombre.errors %}
-                <div class="invalid-feedback">{{ form.nombre.errors[0] }}</div>
-            {% endif %}
+            {{ form.nombre(class="form-control") }}
         </div>
-
         <div class="form-group col-md-6">
             {{ form.descripcion.label(class="form-label") }}
-            {{ form.descripcion(class="form-control", required=True) }}
-            {% if form.descripcion.errors %}
-                <div class="invalid-feedback">{{ form.descripcion.errors[0] }}</div>
-            {% endif %}
+            {{ form.descripcion(class="form-control") }}
         </div>
-
-            <div class="form-group">
-            {{ form.imagen.label(class="form-label") }}
-            {{ form.imagen(class="form-control-file") }}
-            {% if form.imagen.errors %}
-                {% for error in form.imagen.errors %}
-                    <div class="invalid-feedback d-block">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-            {% endif %}
+            </div>
+        <div class="form-group">
+            <label for="image">Imagen</label>
+            <input type="file" name="image" class="form-control-file" accept="image/*">
         </div>
-</div>
         <button type="submit" class="btn btn-primary">Crear Categoría</button>
     </form>
 </div>
+
+<script>
+document.getElementById('create-category-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('{{ url_for("admin.crear_categoria") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: data.message,
+                timer: 1500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = '{{ url_for("admin.listar_categorias") }}';
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al procesar la solicitud. Por favor, inténtelo de nuevo.'
+        });
+        console.error('Error:', error);
+    });
+});
+</script>
 {% endblock %}

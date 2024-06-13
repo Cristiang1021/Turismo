@@ -1,3 +1,134 @@
+/* app/static/css/styles.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.hero {
+    background: url('../img/image.jpg') no-repeat center center/cover;
+    height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    color: white;
+}
+
+.header-content {
+    width: 70%;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.navbar {
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar .navbar-brand {
+    color: white;
+}
+
+.navbar .nav-link {
+    color: white;
+}
+
+.header-content h1 {
+    font-size: 36px;
+    margin: 0;
+}
+
+.header-content p {
+    font-size: 18px;
+    margin: 20px 0;
+}
+
+.btn-primary {
+    background: #000000;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.btn-primary:hover {
+    background: #333333;
+}
+
+.btn-outline-secondary {
+    background: white;
+    color: black;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 16px;
+    border: 2px solid black;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.btn-outline-secondary:hover {
+    background: #f8f8f8;
+}
+
+.carousel-categories, .carousel-featured, .carousel-activities {
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.slick-prev, .slick-next {
+    font-size: 24px;
+    line-height: 1;
+    opacity: 0.75;
+    color: black;
+    transition: opacity 0.3s;
+}
+
+.slick-prev:hover, .slick-next:hover {
+    opacity: 1;
+}
+
+.slick-dots li button:before {
+    font-size: 12px;
+    color: black;
+}
+
+.slick-dots li.slick-active button:before {
+    color: black;
+}
+
+.card {
+    transition: transform 0.3s ease-in-out;
+    border-radius: 10px;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.footer {
+    background: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.form-label {
+    font-size: 1.1em;
+}
+
 /* Estilos personalizados para la página de inicio */
 .card-img-top {
     height: 200px; /* Fija la altura para todas las imágenes de las tarjetas */
@@ -12,3 +143,78 @@
     transform: translateY(-10px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
 }
+
+/* Estilos para la sección con imagen y texto superpuesto */
+.position-relative {
+    position: relative;
+}
+
+.img-fluid {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0); /* Fondo semitransparente */
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 110%; /* Asegurar que la superposición no ocupe todo el ancho */
+}
+
+.overlay h1 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.overlay p {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.overlay .btn {
+    font-size: 1.2rem;
+    padding: 10px 20px;
+}
+
+.main-content {
+    margin-top: 60px; /* Ajusta este valor según sea necesario */
+}
+
+/* Estilos para la sección de recomendaciones */
+.recommendations {
+    margin-top: 20px;
+}
+
+.recommendation {
+    margin-bottom: 20px;
+}
+
+.recommendation img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.recommendation .card-body {
+    padding: 20px;
+}
+
+.recommendation .card-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.recommendation .card-text {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.recommendation .btn {
+    font-size: 1.2rem;
+    padding: 10px 20px;

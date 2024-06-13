@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Completa el Formulario{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header text-center">
+            <h2>Encuentra Tu Actividad Ideal</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.completar_formulario') }}">
+                {{ form.hidden_tag() }}
+                <div id="question-container" class="mb-4"></div>
+                <div class="text-center">
+                    <button type="button" id="next-button" class="btn btn-primary btn-lg">Siguiente</button>
+                    <button type="submit" id="submit-button" class="btn btn-primary btn-lg" style="display: none;">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionContainer = document.getElementById('question-container');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+
+    const questions = [
+        { label: "{{ form.pregunta1.label(class='form-label font-weight-bold') }}", input: "{{ form.pregunta1(class='form-check') }}" },
+        { label: "{{ form.pregunta2.label(class='form-label font-weight-bold') }}", input: "{{ form.pregunta2(class='form-check') }}" },
+        { label: "{{ form.pregunta3.label(class='form-label font-weight-bold') }}", input: "{{ form.pregunta3(class='form-check') }}" },
+        { label: "{{ form.pregunta4.label(class='form-label font-weight-bold') }}", input: "{{ form.pregunta4(class='form-check') }}" },
+        { label: "{{ form.pregunta5.label(class='form-label font-weight-bold') }}", input: "{{ form.pregunta5(class='form-check') }}" },
+        { label: "{{ form.pregunta6.label(class='form-label font-weight-bold') }}", input: "{{ form.pregunta6(class='form-check') }}" },
+        { label: "{{ form.pregunta7.label(class='form-label font-weight-bold') }}", input: "{{ form.pregunta7(class='form-check') }}" }
+    ];
+
+    let currentQuestionIndex = 0;
+
+    function showQuestion(index) {
+        if (index < questions.length) {
+            questionContainer.innerHTML = `
+                <div class="question">
+                    ${questions[index].label}
+                    ${questions[index].input}
+                </div>
+            `;
+            if (index === questions.length - 1) {
+                nextButton.style.display = 'none';
+                submitButton.style.display = 'inline-block';
+            } else {
+                nextButton.style.display = 'inline-block';
+                submitButton.style.display = 'none';
+            }
+        }
+    }
+
+    nextButton.addEventListener('click', () => {
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+    });
+
+    showQuestion(currentQuestionIndex);
+});
+</script>
+{% endblock %}

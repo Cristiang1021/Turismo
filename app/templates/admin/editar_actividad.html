@@ -5,152 +5,147 @@
     <h2>Editar Actividad Turística</h2>
     <form action="{{ url_for('admin.editar_actividad', id=actividad.id) }}" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
-<div class="form-group text-right mt-3">
-        <button type="submit" class="btn btn-primary">Guardar <Cambios></Cambios></button>
-        <a href="{{ url_for('admin.listar_actividades') }}" class="btn btn-secondary btn-danger">Cancelar</a>
-      </div>
+        <div class="form-group text-right mt-3">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{{ url_for('admin.listar_actividades') }}" class="btn btn-secondary btn-danger">Cancelar</a>
+        </div>
         <div class="images-section">
             <h3>Imágenes Actuales</h3>
             <div class="image-gallery">
                 {% for imagen in actividad.imagenes %}
-<div class="image-container">
-    <img src="{{ imagen.url }}" alt="Imagen de actividad">
-    <button class="delete-image-btn" data-image-id="{{ imagen.id }}" aria-label="Eliminar imagen">
-    <i class="fas fa-trash-alt"></i>
-</button>
-
-    <input type="checkbox" name="delete_images" value="{{ imagen.id }}" class="form-check-input hidden">
-</div>
-{% endfor %}
-
+                <div class="image-container" style="position: relative; display: inline-block;">
+                    <img src="{{ url_for('admin.get_imagen_actividad', id=imagen.id) }}" alt="Imagen de actividad" style="max-width: 100px;">
+                    <button class="delete-image-btn" style="position: absolute; top: 10px; right: 10px;" data-image-id="{{ imagen.id }}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <input type="checkbox" name="delete_images" value="{{ imagen.id }}" style="display: none;">
+                </div>
+                {% endfor %}
             </div>
         </div>
-
         <div class="new-images-section mt-4">
             <h3>Subir Nuevas Imágenes</h3>
             <input type="file" name="new_images" class="form-control-file" multiple>
         </div>
         <div class="form-data-section mt-4">
             <h3>Datos de la Actividad</h3>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                {{ form.nombre.label(class="form-label") }}
-                {{ form.nombre(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.categoria_id.label(class="form-label") }}
-                {{ form.categoria_id(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.nivel_fisico_requerido.label(class="form-label") }}
-                {{ form.nivel_fisico_requerido(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.nivel_dificultad.label(class="form-label") }}
-                {{ form.nivel_dificultad(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.tiempo_promedio_duracion.label(class="form-label") }}
-                {{ form.tiempo_promedio_duracion(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.epoca_recomendada.label(class="form-label") }}
-                {{ form.epoca_recomendada(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.temperatura_maxima.label(class="form-label") }}
-                {{ form.temperatura_maxima(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.temperatura_minima.label(class="form-label") }}
-                {{ form.temperatura_minima(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.precipitacion_media_anual.label(class="form-label") }}
-                {{ form.precipitacion_media_anual(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.precio_referencial.label(class="form-label") }}
-                {{ form.precio_referencial(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.descripcion_equipamiento.label(class="form-label") }}
-                {{ form.descripcion_equipamiento(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.sitio.label(class="form-label") }}
-                {{ form.sitio(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.cota_maxima.label(class="form-label") }}
-                {{ form.cota_maxima(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.cota_minima.label(class="form-label") }}
-                {{ form.cota_minima(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.desnivel_subida.label(class="form-label") }}
-                {{ form.desnivel_subida(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.desnivel_bajada.label(class="form-label") }}
-                {{ form.desnivel_bajada(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.lugar_partida.label(class="form-label") }}
-                {{ form.lugar_partida(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.lugar_llegada.label(class="form-label") }}
-                {{ form.lugar_llegada(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.acceso.label(class="form-label") }}
-                {{ form.acceso(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.tipo_superficie.label(class="form-label") }}
-                {{ form.tipo_superficie(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.localizacion_geografica.label(class="form-label") }}
-                {{ form.localizacion_geografica(class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form.requerimiento_guia.label(class="form-label") }}
-                {{ form.requerimiento_guia(class="form-control") }}
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.nombre.label(class="form-label") }}
+                    {{ form.nombre(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.categoria_id.label(class="form-label") }}
+                    {{ form.categoria_id(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.nivel_fisico_requerido.label(class="form-label") }}
+                    {{ form.nivel_fisico_requerido(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.nivel_dificultad.label(class="form-label") }}
+                    {{ form.nivel_dificultad(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.tiempo_promedio_duracion.label(class="form-label") }}
+                    {{ form.tiempo_promedio_duracion(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.epoca_recomendada.label(class="form-label") }}
+                    {{ form.epoca_recomendada(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.temperatura_maxima.label(class="form-label") }}
+                    {{ form.temperatura_maxima(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.temperatura_minima.label(class="form-label") }}
+                    {{ form.temperatura_minima(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.precipitacion_media_anual.label(class="form-label") }}
+                    {{ form.precipitacion_media_anual(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.precio_referencial.label(class="form-label") }}
+                    {{ form.precio_referencial(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.descripcion_equipamiento.label(class="form-label") }}
+                    {{ form.descripcion_equipamiento(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.sitio.label(class="form-label") }}
+                    {{ form.sitio(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.cota_maxima.label(class="form-label") }}
+                    {{ form.cota_maxima(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.cota_minima.label(class="form-label") }}
+                    {{ form.cota_minima(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.desnivel_subida.label(class="form-label") }}
+                    {{ form.desnivel_subida(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.desnivel_bajada.label(class="form-label") }}
+                    {{ form.desnivel_bajada(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.lugar_partida.label(class="form-label") }}
+                    {{ form.lugar_partida(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.lugar_llegada.label(class="form-label") }}
+                    {{ form.lugar_llegada(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.acceso.label(class="form-label") }}
+                    {{ form.acceso(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.tipo_superficie.label(class="form-label") }}
+                    {{ form.tipo_superficie(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.localizacion_geografica.label(class="form-label") }}
+                    {{ form.localizacion_geografica(class="form-control") }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.requerimiento_guia.label(class="form-label") }}
+                    {{ form.requerimiento_guia(class="form-control") }}
+                </div>
             </div>
         </div>
-</div>
         <div class="text-center mt-4">
-    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-    <a href="{{ url_for('admin.listar_actividades') }}" class="btn btn-secondary btn-danger">Cancelar</a>
-</div>
-
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{{ url_for('admin.listar_actividades') }}" class="btn btn-secondary btn-danger">Cancelar</a>
+        </div>
         <br> <br>
     </form>
 </div>
 
 <script>
     document.querySelectorAll('.delete-image-btn').forEach(button => {
-    button.addEventListener('click', function(event) {
-        event.preventDefault();
-        const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
-        if (confirmDelete) {
-            const imageId = this.getAttribute('data-image-id');
-            const checkbox = document.querySelector(`input[value="${imageId}"]`);
-            checkbox.checked = true; // Marca la imagen para eliminación
-            this.parentElement.style.display = 'none'; // Oculta el contenedor de la imagen
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
+            if (confirmDelete) {
+                const imageId = this.getAttribute('data-image-id');
+                const checkbox = document.querySelector(`input[name="delete_images"][value="${imageId}"]`);
+                checkbox.checked = true; // Marca la imagen para eliminación
+                this.parentElement.style.display = 'none'; // Oculta el contenedor de la imagen
+            }
+        });
+    });
+
+    document.querySelector('.btn-secondary').addEventListener('click', function(event) {
+        if (!confirm('¿Estás seguro de que quieres cancelar? Los cambios no guardados se perderán.')) {
+            event.preventDefault();  // Detiene la redirección si el usuario decide no cancelar
         }
     });
-});
-
-document.querySelector('.btn-secondary').addEventListener('click', function(event) {
-    if (!confirm('¿Estás seguro de que quieres cancelar? Los cambios no guardados se perderán.')) {
-        event.preventDefault();  // Detiene la redirección si el usuario decide no cancelar
-    }
-});
-
 </script>
 {% endblock %}

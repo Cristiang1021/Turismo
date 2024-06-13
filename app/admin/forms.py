@@ -19,8 +19,7 @@ class UsuarioForm(FlaskForm):
         Regexp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
                message='La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.')
     ])
-    confirm_password = PasswordField('Confirmar Contraseña', validators=[DataRequired(), EqualTo('password',
-                                                                                                 message='Las contraseñas deben coincidir.')])
+    confirm_password = PasswordField('Confirmar Contraseña', validators=[DataRequired(), EqualTo('password', message='Las contraseñas deben coincidir.')])
     es_admin = BooleanField('Es administrador')
     submit = SubmitField('Registrar')
 
@@ -30,7 +29,6 @@ class UsuarioForm(FlaskForm):
             raise ValidationError('El correo ya está en uso. Por favor, elige un correo diferente.')
 
 
-# Nuevo formulario para la edición que hereda de FlaskForm directamente
 class EditarUsuarioForm(FlaskForm):
     usuario_id = HiddenField()
     nombre = StringField('Nombre', validators=[DataRequired()])
@@ -62,9 +60,9 @@ class EditarUsuarioForm(FlaskForm):
 class CategoriaForm(FlaskForm):
     nombre = StringField('Nombre de la categoría', validators=[DataRequired()])
     descripcion = StringField('Descripcion de la categoría', validators=[DataRequired()])
-    imagen = FileField('Imagen', validators=[
+    imagen = FileField('Imagen', validators=[Optional(),
         FileRequired(),
-        FileAllowed(['jpg', 'png'], 'Solo imágenes!')
+        FileAllowed(['jpg', 'png', 'webp', 'jpeg'], 'Solo imágenes!')
     ])
     submit = SubmitField('Guardar Categoría')
 
@@ -90,17 +88,16 @@ class ActividadTuristicaForm(FlaskForm):
     temperatura_maxima = StringField('Temperatura Máxima')
     precipitacion_media_anual = StringField('Precipitación Media Anual')
     requerimiento_guia = SelectField('Requerimiento Guia',
-                                         choices=[('Si', 'Si'), ('No', 'No')])
+                                     choices=[('Si', 'Si'), ('No', 'No')])
     localizacion_geografica = StringField('Localización Geográfica', validators=[DataRequired()])
     acceso = TextAreaField('Acceso', validators=[DataRequired()])
     precio_referencial = StringField('Precio Referencial', validators=[DataRequired()])
     categoria_id = SelectField('Categoría', coerce=int, validators=[DataRequired()])
     imagenes = FileField('Imágenes', validators=[
-        FileAllowed(['jpg', 'png'], 'Imágenes solamente!')], render_kw={"multiple": True})
+        FileAllowed(['jpg', 'png', 'webp', 'jpeg'], 'Imágenes solamente!')], render_kw={"multiple": True})
     es_portada = BooleanField('Es portada')
     submit = SubmitField('Guardar Actividad')
 
     def __init__(self, *args, **kwargs):
         super(ActividadTuristicaForm, self).__init__(*args, **kwargs)
         self.categoria_id.choices = [(c.id, c.nombre) for c in Categoria.query.all()]
-

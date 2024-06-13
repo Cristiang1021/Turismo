@@ -218,6 +218,7 @@ def actividades_por_categoria(categoria_id):
     actividades = ActividadTuristica.query.filter_by(categoria_id=categoria.id).all()
     return render_template('actividades_por_categoria.html', categoria=categoria, actividades=actividades)
 
+
 @main_bp.route('/profile')
 @login_required
 def profile():
@@ -269,6 +270,57 @@ def query_gpt4(question, context, max_context_length=2000):
     return response.choices[0].message["content"].strip()
 
 
+
+@main_bp.route('/profile')
+@login_required
+def profile():
+    return render_template('perfil.html', user=current_user)
+
+
+
+@main_bp.route('/cambiar_contraseña', methods=['GET', 'POST'])
+@login_required
+def cambiar_contraseña():
+    # Lógica para cambiar la contraseña
+    return render_template('cambiar_contraseña.html')
+
+
+
+# Función para extraer texto del PDF desde una ruta local
+def extract_text_from_pdf_local(pdf_path):
+    try:
+        document = fitz.open(pdf_path)
+        text = ""
+        for page_num in range(document.page_count):
+            page = document.load_page(page_num)
+            text += page.get_text()
+        return text
+    except Exception as e:
+        print(f"Error processing PDF: {e}")
+        return "Error: Unable to process PDF."
+
+# Ruta del PDF local
+pdf_path = "C:/Users/andre/Desktop/U/tessis/18T00955.pdf"
+pdf_text = extract_text_from_pdf_local(pdf_path)
+print(f"Extracted PDF text: {pdf_text[:500]}...")  # Imprimir los primeros 500 caracteres para depuración
+
+# Función para hacer consultas a gpt-3.5-turbo-16k
+def query_gpt4(question, context, max_context_length=2000):
+    # Limitar el tamaño del contexto
+    if len(context) > max_context_length:
+        context = context[:max_context_length]
+    prompt = f"Context from the PDF:\n{context}\n\nQuestion: {question}\nAnswer:"
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": prompt},
+    ]
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k",  # Cambia a gpt-3.5-turbo-16k
+        messages=messages,
+        max_tokens=150,
+    )
+    return response.choices[0].message["content"].strip()
+
 # <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
@@ -281,13 +333,11 @@ def webhook():
 
     # Si no hay acción, devuelve un mensaje de error más informativo
     if not action:
-
         return jsonify(
             {"fulfillmentText": "No action provided in the request. Please check the action settings in Dialogflow."})
 
     # Manejar las acciones según lo configurado
     if action == 'consultar_actividades':
-
         categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
         return consultar_actividades(categoria_nombre)
     elif action == 'dar_consejos':
@@ -300,7 +350,7 @@ def webhook():
         return jsonify({"fulfillmentText": answer})
 
 
-    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+    return jsonify({"fulfillmentText": "Action not handled by the webhook."})
 
 
 def consultar_actividades(categoria_nombre):

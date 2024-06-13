@@ -1,0 +1,28 @@
+<!-- app/templates/actividades_por_categoria.html -->
+{% extends "base.html" %}
+
+{% block title %}Actividades - {{ categoria.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Actividades en {{ categoria.nombre }}</h1>
+    <div class="row">
+        {% for actividad in actividades %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if actividad.imagenes %}
+                    <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ actividad.nombre }}</h5>
+                    <p class="card-text">{{ actividad.descripcion_equipamiento[:100] }}...</p>
+                    <a href="#" class="btn btn-primary">Ver más</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

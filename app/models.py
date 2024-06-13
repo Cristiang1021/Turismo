@@ -13,6 +13,7 @@ class Usuario(UserMixin, db.Model):
     correo = db.Column(db.String(255), unique=True)
     contraseña_hash = db.Column(db.String(256))
     es_admin = db.Column(db.Boolean, default=False)
+    respuestas = db.relationship('RespuestasFormulario', backref='user', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     @property
@@ -31,11 +32,15 @@ class Categoria(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), unique=True, nullable=False)
     descripcion = db.Column(db.String(100), unique=False, nullable=False)
-    image_url = db.Column(db.String(255))
+    image_name = db.Column(db.String(255))
+    image_data = db.Column(db.LargeBinary)
+    image_mimetype = db.Column(db.String(50))
     actividades = db.relationship('ActividadTuristica', backref='categoria', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
-    # ... otros campos según necesidad
+
+    def __repr__(self):
+        return f"<Categoria {self.nombre}, Image Length: {len(self.image_data) if self.image_data else 0}>"
 
 class ActividadTuristica(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -65,28 +70,30 @@ class ActividadTuristica(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     # ... otros campos según necesidad
+    def __repr__(self):
+        return f"<ImagenActividad {self.name}, Image Length: {len(self.data) if self.data else 0}>"
 
 class ImagenActividad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    url = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    data = db.Column(db.LargeBinary, nullable=False)
+    mimetype = db.Column(db.String(50), nullable=False)
     actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'))
-    es_portada = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
-    # ... otros campos como descripción, si es portada, etc.
 
 
 
-class PreferenciaUsuario(db.Model):
+class RespuestasFormulario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
-    nivel_dificultad = db.Column(db.String(50), nullable=False)
-    tipo_superficie = db.Column(db.String(50), nullable=False)
-    temperatura_minima = db.Column(db.Integer, nullable=False)
-    temperatura_maxima = db.Column(db.Integer, nullable=False)
-    usuario = db.relationship('Usuario', backref='preferencias')
-    created_at = db.Column(db.DateTime, default=datetime.now)
-    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    pregunta1 = db.Column(db.String(50), nullable=False)
+    pregunta2 = db.Column(db.String(50), nullable=False)
+    pregunta3 = db.Column(db.String(50), nullable=False)
+    pregunta4 = db.Column(db.String(50), nullable=False)
+    pregunta5 = db.Column(db.String(50), nullable=False)
+    pregunta6 = db.Column(db.String(50), nullable=False)
+    pregunta7 = db.Column(db.String(50), nullable=False)
 
 
 class ActividadVista(db.Model):
