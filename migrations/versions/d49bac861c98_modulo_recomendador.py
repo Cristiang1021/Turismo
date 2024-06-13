@@ -32,7 +32,9 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.drop_table('preferencia_usuario')
-    op.drop_table('simple_binary_test')
+    conn = op.get_bind()
+    if conn.dialect.has_table(conn, 'simple_binary_test'):
+        op.drop_table('simple_binary_test')
     # ### end Alembic commands ###
 
 
