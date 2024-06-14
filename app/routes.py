@@ -18,7 +18,7 @@ from .forms import LoginForm, RegistrationForm, RecomendacionForm, Recomendacion
 from .models import Usuario, ActividadTuristica, Categoria, ImagenActividad, RespuestasFormulario
 
 main_bp = Blueprint('main', __name__)
-openai.api_key = os.getenv('OPENAI_API_KEY')
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 
 def calcular_similitud(actividad, respuestas):
@@ -234,22 +234,23 @@ def cambiar_contraseña():
 
 
 # Función para extraer texto del PDF desde una ruta local
-def extract_text_from_pdf_local(pdf_path):
-    try:
-        document = fitz.open(pdf_path)
+def extract_text_from_pdf_url(pdf_url):
+    response = requests.get(pdf_url)
+    if response.status_code == 200:
+        pdf_data = response.content
+        document = fitz.open(stream=pdf_data, filetype="pdf")
         text = ""
         for page_num in range(document.page_count):
             page = document.load_page(page_num)
             text += page.get_text()
         return text
-    except Exception as e:
-        print(f"Error processing PDF: {e}")
+    else:
         return "Error: Unable to process PDF."
 
 # Ruta del PDF local
-pdf_path = "C:/Users/andre/Desktop/U/tessis/18T00955.pdf"
-pdf_text = extract_text_from_pdf_local(pdf_path)
-#print(f"Extracted PDF text: {pdf_text[:500]}...")  # Imprimir los primeros 500 caracteres para depuración
+pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
+pdf_text = extract_text_from_pdf_url(pdf_url)
+print(f"Extracted PDF text: {pdf_text[:20]}...")  # Imprimir los primeros 20 caracteres para depuración
 
 # Función para hacer consultas a gpt-3.5-turbo-16k
 def query_gpt4(question, context, max_context_length=2000):

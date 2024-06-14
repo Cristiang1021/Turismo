@@ -31,10 +31,8 @@ def create_app(config_class=Config):
     app.register_blueprint(admin_bp)
 
     # Si tienes un blueprint para las rutas principales, asegúrate de importarlo y registrar aquí
-    from app.routes import main_bp  # Asume que tienes un blueprint 'main_bp' para rutas principales
+    from app.routes import main_bp, webhook
     app.register_blueprint(main_bp)
-
-    from app.routes import webhook
     csrf.exempt(webhook)
 
 
