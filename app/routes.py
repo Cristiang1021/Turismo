@@ -239,6 +239,12 @@ def ver_actividad(id):
     return render_template('ver_actividad.html', actividad=actividad)
 
 
+import logging
+
+# Configuración del logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 # Función para extraer texto del PDF desde una ruta local
 def extract_text_from_pdf_url(pdf_url):
@@ -254,10 +260,12 @@ def extract_text_from_pdf_url(pdf_url):
     else:
         return "Error: Unable to process PDF."
 
+
 # Ruta del PDF local
 pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
 pdf_text = extract_text_from_pdf_url(pdf_url)
 print(f"Extracted PDF text: {pdf_text[:20]}...")  # Imprimir los primeros 20 caracteres para depuración
+
 
 # Función para hacer consultas a gpt-3.5-turbo-16k
 def query_gpt4(question, context, max_context_length=2000):
@@ -274,22 +282,40 @@ def query_gpt4(question, context, max_context_length=2000):
         messages=messages,
         max_tokens=150,
     )
-    return response.choices[0].message["content"].strip()
+    answer = response.choices[0].message["content"].strip()
 
     # Ajustar la respuesta para incluir enlaces e imágenes si es necesario
     if "actividad" in question.lower():
         actividad_nombre = question.split()[-1]
         actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
         if actividad and actividad.imagen_id:
-            link = f"https://turismo-85gv.onrender.com/actividades/{actividades.id}"  # Reemplaza con el enlace adecuado
-            image_url = f"https://turismo-85gv.onrender.com/actividades/{actividades.imagen_id}"
+            link = f"https://turismo-85gv.onrender.com/actividades/{actividad.id}"  # Reemplaza con el enlace adecuado
+            image_url = f"https://turismo-85gv.onrender.com/imagen_actividad/{actividad.imagen_id}"
             answer += f"\n\nPuedes obtener más información en el siguiente enlace: [Más información]({link})\n"
             answer += f"![Imagen de la actividad]({image_url})"
     return answer
 
+
 def get_user_info(user_id):
-    user = Usuario.query.get(user_id)
-    return user
+    try:
+        user = Usuario.query.get(int(user_id))
+        return user
+    except ValueError:
+        logger.error(f"Invalid user_id format: {user_id}")
+        return None
+
+
+def obtener_recomendaciones(user_id):
+    respuestas = RespuestasFormulario.query.filter_by(user_id=user_id).first()
+
+    if not respuestas:
+        return []
+
+    actividades = ActividadTuristica.query.all()
+    actividades_recomendadas = sorted(actividades, key=lambda actividad: calcular_similitud(actividad, respuestas),
+                                      reverse=True)
+
+    return actividades_recomendadas[:5]  # Retornar las 5 actividades con mayor similitud
 
 
 # <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
@@ -297,6 +323,10 @@ def get_user_info(user_id):
 def webhook():
     req = request.get_json(force=True)
     user_id = req.get('originalDetectIntentRequest', {}).get('payload', {}).get('userId')
+
+    # Log para depuración
+    logger.info(f"Received user_id: {user_id}")
+
     user_info = get_user_info(user_id)
 
     query_result = req.get('queryResult', {})
@@ -331,7 +361,6 @@ def webhook():
     return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
 
-
 def consultar_actividades(categoria_nombre):
     if categoria_nombre == 'general':
         actividades = ActividadTuristica.query.all()
@@ -357,4 +386,3 @@ def dar_consejos(actividad_nombre):
     else:
         response_text = "No se encontró información sobre esa actividad."
     return jsonify({"fulfillmentText": response_text})
-
