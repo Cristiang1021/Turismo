@@ -233,6 +233,13 @@ def cambiar_contraseña():
 
 
 
+@main_bp.route('/actividades/<int:id>')
+def ver_actividad(id):
+    actividad = ActividadTuristica.query.get_or_404(id)
+    return render_template('ver_actividad.html', actividad=actividad)
+
+
+
 # Función para extraer texto del PDF desde una ruta local
 def extract_text_from_pdf_url(pdf_url):
     response = requests.get(pdf_url)
@@ -257,7 +264,7 @@ def query_gpt4(question, context, max_context_length=2000):
     # Limitar el tamaño del contexto
     if len(context) > max_context_length:
         context = context[:max_context_length]
-    prompt = f"Context from the PDF:\n{context}\n\nQuestion: {question}\nAnswer:"
+    prompt = f"{context}\n\nQuestion: {question}\nAnswer:"
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": prompt},
@@ -269,26 +276,37 @@ def query_gpt4(question, context, max_context_length=2000):
     )
     return response.choices[0].message["content"].strip()
 
+    # Ajustar la respuesta para incluir enlaces e imágenes si es necesario
+    if "actividad" in question.lower():
+        actividad_nombre = question.split()[-1]
+        actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
+        if actividad and actividad.imagen_id:
+            link = f"https://turismo-85gv.onrender.com/actividades/{actividades.id}"  # Reemplaza con el enlace adecuado
+            image_url = f"https://turismo-85gv.onrender.com/actividades/{actividades.imagen_id}"
+            answer += f"\n\nPuedes obtener más información en el siguiente enlace: [Más información]({link})\n"
+            answer += f"![Imagen de la actividad]({image_url})"
+    return answer
+
+def get_user_info(user_id):
+    user = Usuario.query.get(user_id)
+    return user
+
 
 # <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
+    user_id = req.get('originalDetectIntentRequest', {}).get('payload', {}).get('userId')
+    user_info = get_user_info(user_id)
 
-    # Asegurar que 'queryResult' y 'action' existen
     query_result = req.get('queryResult', {})
     action = query_result.get('action', None)
 
-
-    # Si no hay acción, devuelve un mensaje de error más informativo
     if not action:
-
         return jsonify(
-            {"fulfillmentText": "No action provided in the request. Please check the action settings in Dialogflow."})
+            {"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
 
-    # Manejar las acciones según lo configurado
     if action == 'consultar_actividades':
-
         categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
         return consultar_actividades(categoria_nombre)
     elif action == 'dar_consejos':
@@ -298,19 +316,27 @@ def webhook():
         question = query_result.get('queryText')
         context = pdf_text  # Utilizar el texto del PDF como contexto
         answer = query_gpt4(question, context)
+        # Personalizar la respuesta si es necesario
+        if user_info:
+            answer += f"\n\n{user_info.nombre}, espero que esto te sea útil."
         return jsonify({"fulfillmentText": answer})
-
+    elif action == 'obtener_recomendaciones':
+        recomendaciones = obtener_recomendaciones(user_id)
+        if recomendaciones:
+            recomendacion_text = "\n".join([f"{rec.nombre}: {rec.descripcion}" for rec in recomendaciones])
+            return jsonify({"fulfillmentText": f"Aquí están tus recomendaciones: {recomendacion_text}"})
+        else:
+            return jsonify({"fulfillmentText": "No se encontraron recomendaciones para ti."})
 
     return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
 
-def consultar_actividades(categoria_nombre):
 
+def consultar_actividades(categoria_nombre):
     if categoria_nombre == 'general':
         actividades = ActividadTuristica.query.all()
         actividades_text = "\n ".join([actividad.nombre for actividad in actividades])
         response_text = f"Todas las actividades: {actividades_text}"
-
     else:
         categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
         if categoria and categoria.actividades:
@@ -320,6 +346,7 @@ def consultar_actividades(categoria_nombre):
         else:
             response_text = f"No se han encontrado actividades en la categoría: {categoria_nombre}."
     return jsonify({"fulfillmentText": response_text})
+
 
 def dar_consejos(actividad_nombre):
     actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()

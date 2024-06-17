@@ -218,3 +218,39 @@ body {
 .recommendation .btn {
     font-size: 1.2rem;
     padding: 10px 20px;
+
+
+    .card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+.card-img-top {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.card-text {
+    color: #666;
+}
+
+.btn-dark {
+    background-color: #000;
+    color: #fff;
+    border: none;
+}
+
+.btn-dark:hover {
+    background-color: #333;
+}
