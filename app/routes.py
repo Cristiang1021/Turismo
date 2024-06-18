@@ -246,7 +246,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-# Función para extraer texto del PDF desde una ruta local
+from concurrent.futures import ThreadPoolExecutor
+
+executor = ThreadPoolExecutor(max_workers=2)
+
 def extract_text_from_pdf_url(pdf_url):
     response = requests.get(pdf_url)
     if response.status_code == 200:
@@ -260,12 +263,20 @@ def extract_text_from_pdf_url(pdf_url):
     else:
         return "Error: Unable to process PDF."
 
+def async_extract_text_from_pdf_url(pdf_url):
+    return executor.submit(extract_text_from_pdf_url, pdf_url)
 
-# Ruta del PDF local
-pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
-pdf_text = extract_text_from_pdf_url(pdf_url)
-print(f"Extracted PDF text: {pdf_text[:20]}...")  # Imprimir los primeros 20 caracteres para depuración
+# Ruta del PDF
+pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"
 
+# Llamar a la función asíncrona
+future = async_extract_text_from_pdf_url(pdf_url)
+pdf_text = future.result()
+print(f"Extracted PDF text: {pdf_text[:20]}...")
+
+
+
+# <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
 
 # Función para hacer consultas a gpt-3.5-turbo-16k
 def query_gpt4(question, context, max_context_length=2000):
@@ -284,19 +295,22 @@ def query_gpt4(question, context, max_context_length=2000):
     )
     answer = response.choices[0].message["content"].strip()
 
-    # Ajustar la respuesta para incluir enlaces e imágenes si es necesario
+    # Respuesta para incluir enlaces e imágenes
     if "actividad" in question.lower():
         actividad_nombre = question.split()[-1]
         actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
         if actividad and actividad.imagen_id:
-            link = f"https://turismo-85gv.onrender.com/actividades/{actividad.id}"  # Reemplaza con el enlace adecuado
-            image_url = f"https://turismo-85gv.onrender.com/imagen_actividad/{actividad.imagen_id}"
+            link = f"https://turismo-85gv.onrender.com/actividades/{actividades.id}"  # Reemplaza con el enlace adecuado
+            image_url = f"https://turismo-85gv.onrender.com/imagen_actividad/{actividades.imagen_id}"
             answer += f"\n\nPuedes obtener más información en el siguiente enlace: [Más información]({link})\n"
             answer += f"![Imagen de la actividad]({image_url})"
     return answer
 
 
 def get_user_info(user_id):
+    if user_id is None:
+        logger.error("User ID is missing or invalid")
+        return None
     try:
         user = Usuario.query.get(int(user_id))
         return user
@@ -305,24 +319,14 @@ def get_user_info(user_id):
         return None
 
 
-def obtener_recomendaciones(user_id):
-    respuestas = RespuestasFormulario.query.filter_by(user_id=user_id).first()
-
-    if not respuestas:
-        return []
-
-    actividades = ActividadTuristica.query.all()
-    actividades_recomendadas = sorted(actividades, key=lambda actividad: calcular_similitud(actividad, respuestas),
-                                      reverse=True)
-
-    return actividades_recomendadas[:5]  # Retornar las 5 actividades con mayor similitud
-
-
-# <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
-@main_bp.route('/webhook', methods=['POST'])
+@app.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
     user_id = req.get('originalDetectIntentRequest', {}).get('payload', {}).get('userId')
+
+    # Verificar si el user_id está presente
+    if not user_id:
+        return jsonify({"fulfillmentText": "Por favor, inicia sesión para continuar."})
 
     # Log para depuración
     logger.info(f"Received user_id: {user_id}")
@@ -333,8 +337,7 @@ def webhook():
     action = query_result.get('action', None)
 
     if not action:
-        return jsonify(
-            {"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
+        return jsonify({"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
 
     if action == 'consultar_actividades':
         categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
@@ -346,7 +349,6 @@ def webhook():
         question = query_result.get('queryText')
         context = pdf_text  # Utilizar el texto del PDF como contexto
         answer = query_gpt4(question, context)
-        # Personalizar la respuesta si es necesario
         if user_info:
             answer += f"\n\n{user_info.nombre}, espero que esto te sea útil."
         return jsonify({"fulfillmentText": answer})

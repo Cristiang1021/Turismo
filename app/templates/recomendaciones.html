@@ -59,7 +59,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ actividad.nombre }}</h5>
                             <p class="card-text">{{ actividad.descripcion_equipamiento[:100] }}...</p>
-                            <a href="#" class="btn btn-primary btn-sm">Ver más</a>
+                            <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-primary btn-sm">Ver más</a>
                         </div>
                     </div>
                 </div>
