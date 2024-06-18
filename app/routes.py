@@ -319,7 +319,7 @@ def get_user_info(user_id):
         return None
 
 
-@app.route('/webhook', methods=['POST'])
+@main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
     user_id = req.get('originalDetectIntentRequest', {}).get('payload', {}).get('userId')
