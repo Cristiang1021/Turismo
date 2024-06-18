@@ -239,17 +239,9 @@ def ver_actividad(id):
     return render_template('ver_actividad.html', actividad=actividad)
 
 
-import logging
-
-# Configuración del logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
-from concurrent.futures import ThreadPoolExecutor
-
-executor = ThreadPoolExecutor(max_workers=2)
-
+# Función para extraer texto del PDF desde una ruta local
 def extract_text_from_pdf_url(pdf_url):
     response = requests.get(pdf_url)
     if response.status_code == 200:
@@ -263,17 +255,10 @@ def extract_text_from_pdf_url(pdf_url):
     else:
         return "Error: Unable to process PDF."
 
-def async_extract_text_from_pdf_url(pdf_url):
-    return executor.submit(extract_text_from_pdf_url, pdf_url)
 
-# Ruta del PDF
-pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"
-
-# Llamar a la función asíncrona
-future = async_extract_text_from_pdf_url(pdf_url)
-pdf_text = future.result()
-print(f"Extracted PDF text: {pdf_text[:20]}...")
-
+pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
+pdf_text = extract_text_from_pdf_url(pdf_url)
+print(f"Extracted PDF text: {pdf_text[:20]}...")  # Imprimir los primeros 20 caracteres para depuración
 
 
 # <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
@@ -295,49 +280,18 @@ def query_gpt4(question, context, max_context_length=2000):
     )
     answer = response.choices[0].message["content"].strip()
 
-    # Respuesta para incluir enlaces e imágenes
-    if "actividad" in question.lower():
-        actividad_nombre = question.split()[-1]
-        actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
-        if actividad and actividad.imagen_id:
-            link = f"https://turismo-85gv.onrender.com/actividades/{actividades.id}"  # Reemplaza con el enlace adecuado
-            image_url = f"https://turismo-85gv.onrender.com/imagen_actividad/{actividades.imagen_id}"
-            answer += f"\n\nPuedes obtener más información en el siguiente enlace: [Más información]({link})\n"
-            answer += f"![Imagen de la actividad]({image_url})"
-    return answer
-
-
-def get_user_info(user_id):
-    if user_id is None:
-        logger.error("User ID is missing or invalid")
-        return None
-    try:
-        user = Usuario.query.get(int(user_id))
-        return user
-    except ValueError:
-        logger.error(f"Invalid user_id format: {user_id}")
-        return None
 
 
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
-    user_id = req.get('originalDetectIntentRequest', {}).get('payload', {}).get('userId')
-
-    # Verificar si el user_id está presente
-    if not user_id:
-        return jsonify({"fulfillmentText": "Por favor, inicia sesión para continuar."})
-
-    # Log para depuración
-    logger.info(f"Received user_id: {user_id}")
-
-    user_info = get_user_info(user_id)
 
     query_result = req.get('queryResult', {})
     action = query_result.get('action', None)
 
     if not action:
-        return jsonify({"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
+        return jsonify(
+            {"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
 
     if action == 'consultar_actividades':
         categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
@@ -347,19 +301,10 @@ def webhook():
         return dar_consejos(actividad_nombre)
     elif action == 'pregunta_gpt4':
         question = query_result.get('queryText')
-        context = pdf_text  # Utilizar el texto del PDF como contexto
+        context = pdf_text
         answer = query_gpt4(question, context)
-        if user_info:
-            answer += f"\n\n{user_info.nombre}, espero que esto te sea útil."
+        # Personalizar la respuesta si es necesario
         return jsonify({"fulfillmentText": answer})
-    elif action == 'obtener_recomendaciones':
-        recomendaciones = obtener_recomendaciones(user_id)
-        if recomendaciones:
-            recomendacion_text = "\n".join([f"{rec.nombre}: {rec.descripcion}" for rec in recomendaciones])
-            return jsonify({"fulfillmentText": f"Aquí están tus recomendaciones: {recomendacion_text}"})
-        else:
-            return jsonify({"fulfillmentText": "No se encontraron recomendaciones para ti."})
-
     return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
 
