@@ -1,4 +1,3 @@
-<!-- app/templates/index.html -->
 {% extends "base.html" %}
 
 {% block title %}San Andrés{% endblock %}
@@ -11,17 +10,28 @@
 
 {% block content %}
 <!-- Sección con la imagen y el texto superpuesto -->
-<section class="position-relative text-center mb-2" style="height: 550px">
+<section class="hero position-relative">
     <img src="{{ url_for('static', filename='img/image.jpg') }}" class="img-fluid w-100 h-100" alt="Explore" style="object-fit: cover;">
-    <div class="overlay">
-        <h1 class="display-4 font-weight-bold text-white">Descubre las mejores actividades para tu próxima aventura</h1>
-        <p class="lead text-white">Explora un mundo de actividades emocionantes y crea recuerdos inolvidables. <br> Encuentra la experiencia perfecta para tu próximo viaje.</p>
-        <a href="#actividades" class="btn btn-primary btn-lg">Explorar actividades</a>
-        <a href="#view-all" class="btn btn-outline-secondary btn-lg">Ver Todo</a>
+    <div class="overlay text-center d-flex flex-column justify-content-center align-items-center">
+        <h1 class="display-4 font-weight-bold">Descubre las mejores actividades para tu próxima aventura</h1>
+        <br>
+        <div class="d-flex mt-4">
+            <a href="{{ url_for('main.actividades') }}" class="btn btn-primary btn-lg mr-3">Explorar actividades</a>
+        </div>
+    </div>
+    <div class="search-box position-absolute w-100" style="bottom: -30px;">
+        <div class="container">
+            <form class="form-inline justify-content-center bg-white p-3 rounded shadow search-form">
+                <input class="form-control form-control-lg mr-4" type="search" placeholder="Buscar actividades..." aria-label="Search">
+                <button class="btn btn-success btn-lg" type="submit">Buscar</button>
+            </form>
+        </div>
     </div>
 </section>
 
+
 <main class="container mt-5">
+
     <!-- Sección de Categorías Populares -->
     <section id="explore" class="mb-5 text-center">
         <h2 class="mb-4">Categorías Populares</h2>
@@ -43,17 +53,7 @@
         </div>
     </section>
 
-    <!-- Sección de Buscador -->
-    <section id="search" class="mb-5 text-center">
-        <h2 class="mb-4">Encuentra la Actividad Perfecta</h2>
-        <p class="lead text-muted">Busca en nuestra extensa base de datos de actividades y encuentra la mejor opción para tu próxima aventura.</p>
-        <form class="form-inline justify-content-center">
-            <input class="form-control form-control-lg mr-sm-2" type="search" placeholder="Buscar actividades..." aria-label="Search">
-            <button class="btn btn-primary btn-lg my-2 my-sm-0" type="submit">Buscar</button>
-        </form>
-    </section>
-
-     <!-- Sección de Actividades Destacadas -->
+    <!-- Sección de Actividades Destacadas -->
     <section id="featured" class="mb-5 text-center">
         <h2 class="mb-4">Actividades Destacadas</h2>
         <p class="lead text-muted">Consulta nuestras actividades mejor valoradas, perfectas para tu próxima aventura.</p>
@@ -66,7 +66,7 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ actividad.nombre }}</h5>
                             <p class="card-text">{{ actividad.descripcion_equipamiento[:100] }}...</p>
-                            <a href="#" class="btn btn-primary btn-sm">Ver más</a>
+                            <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-primary btn-sm">Ver más</a>
                         </div>
                     </div>
                 </div>
@@ -76,41 +76,9 @@
             {% endif %}
         </div>
     </section>
-
-    <!-- Sección de Actividades Disponibles -->
-    <!--
-    <section id="activities" class="mb-5 text-center">
-        <h2 class="mb-4">Actividades Disponibles</h2>
-        <div class="carousel-activities">
-            {% for actividad in actividades %}
-            <div class="p-2">
-                <div class="card h-100 shadow-sm">
-                    {% if actividad.imagenes %}
-                        <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                        <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ actividad.nombre }}</h5>
-                        <p class="card-text">{{ actividad.descripcion_equipamiento[:100] }}...</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a href="#" class="btn btn-primary btn-sm">Ver más</a>
-                            <small class="text-muted">{{ actividad.nivel_dificultad }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </section> -->
 </main>
 
 
-<footer class="footer mt-5 py-4 bg-light">
-    <div class="container text-center">
-        <p>&copy; 2024 San Andrés. Todos los derechos reservados.</p>
-    </div>
-</footer>
 {% endblock %}
 
 {% block extra_js %}

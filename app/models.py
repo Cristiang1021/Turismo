@@ -45,6 +45,7 @@ class Categoria(db.Model):
 class ActividadTuristica(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
+    descripcion = db.Column(db.Text, nullable=True)
     descripcion_equipamiento = db.Column(db.Text, nullable=False)
     nivel_dificultad = db.Column(db.String(50), nullable=False)
     nivel_fisico_requerido = db.Column(db.String(50), nullable=False)
@@ -64,7 +65,7 @@ class ActividadTuristica(db.Model):
     requerimiento_guia = db.Column(db.Text, nullable=False)
     localizacion_geografica = db.Column(db.String(100), nullable=False)
     acceso = db.Column(db.Text, nullable=False)
-    precio_referencial = db.Column(db.String(100), nullable=False)
+    precio_referencial = db.Column(db.Numeric(10, 2), nullable=True)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=False)
     imagenes = db.relationship('ImagenActividad', backref='actividad', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.now)

@@ -36,7 +36,7 @@
         </div>
         <div class="col-md-4">
             <h1 class="display-4">{{ actividad.nombre }}</h1>
-            <p class="lead">Desde {{ actividad.precio_referencial }}</p>
+            <p class="lead">Desde ${{ actividad.precio_referencial }}</p>
             <p>{{ actividad.descripcion }}</p>
             <div class="d-flex flex-column">
                 <div class="d-flex flex-row mb-2">
@@ -90,27 +90,27 @@
                 </div>
                 <div class="tab-pane fade" id="itinerario" role="tabpanel" aria-labelledby="itinerario-tab">
                     <h3>Itinerario de la Actividad</h3>
-    <ul>
-        <li><strong>Día 1:</strong>
-            <ul>
-                08:00 AM - Salida desde el punto de encuentro. <br>
-                10:00 AM - Llegada al destino y breve descanso. <br>
-                10:30 AM - Inicio de la caminata hacia el primer mirador. <br>
-                01:00 PM - Almuerzo en el camino. <br>
-                02:00 PM - Continuación de la caminata hacia la cima.<br>
-                05:00 PM - Llegada al campamento y montaje de tiendas.<br>
-                07:00 PM - Cena y tiempo libre para actividades grupales.<br>
-            </ul>
-        </li>
-        <li><strong>Día 2:</strong>
-            <ul>
-                06:00 AM - Desayuno y preparación para el descenso. <br>
-                08:00 AM - Inicio del descenso.<br>
-                12:00 PM - Almuerzo en el camino de regreso. <br>
-                03:00 PM - Llegada al punto de partida y cierre de la actividad. <br>
-            </ul>
-        </li>
-    </ul>
+                    <ul>
+                        <li><strong>Día 1:</strong>
+                            <ul>
+                                <li>08:00 AM - Salida desde el punto de encuentro.</li>
+                                <li>10:00 AM - Llegada al destino y breve descanso.</li>
+                                <li>10:30 AM - Inicio de la caminata hacia el primer mirador.</li>
+                                <li>01:00 PM - Almuerzo en el camino.</li>
+                                <li>02:00 PM - Continuación de la caminata hacia la cima.</li>
+                                <li>05:00 PM - Llegada al campamento y montaje de tiendas.</li>
+                                <li>07:00 PM - Cena y tiempo libre para actividades grupales.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Día 2:</strong>
+                            <ul>
+                                <li>06:00 AM - Desayuno y preparación para el descenso.</li>
+                                <li>08:00 AM - Inicio del descenso.</li>
+                                <li>12:00 PM - Almuerzo en el camino de regreso.</li>
+                                <li>03:00 PM - Llegada al punto de partida y cierre de la actividad.</li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
                 <div class="tab-pane fade" id="equipamiento" role="tabpanel" aria-labelledby="equipamiento-tab">
                     {% set equipamiento = actividad.descripcion_equipamiento.split('.') %}
@@ -140,27 +140,26 @@
                 </div>
                 <div class="tab-pane fade" id="faq" role="tabpanel" aria-labelledby="faq-tab">
                     <h3>Preguntas Frecuentes</h3>
-                    <br>
-    <div class="faq-item">
-        <h5><strong>¿Qué incluye el precio del tour?</strong></h5>
-        <p>El precio incluye el transporte desde el punto de encuentro, guías profesionales, equipo grupal e individual, y todas las comidas durante la actividad.</p>
-    </div>
-    <div class="faq-item">
-        <h5><strong>¿Es necesario tener experiencia previa en actividades al aire libre?</strong></h5>
-        <p>No es necesario tener experiencia previa. La actividad está diseñada para ser accesible para todos los niveles de habilidad.</p>
-    </div>
-    <div class="faq-item">
-        <h5><strong>¿Qué debo llevar conmigo?</strong></h5>
-        <p>Recomendamos llevar ropa cómoda y adecuada para el clima, una botella de agua, protector solar, y cualquier medicación personal que pueda necesitar.</p>
-    </div>
-    <div class="faq-item">
-        <h5><strong>¿Hay alguna restricción de edad?</strong></h5>
-        <p>La actividad es adecuada para personas de todas las edades. Sin embargo, los niños menores de 12 años deben estar acompañados por un adulto.</p>
-    </div>
-    <div class="faq-item">
-        <h5><strong>¿Qué pasa si llueve?</strong></h5>
-        <p>La actividad se realizará independientemente de las condiciones climáticas, a menos que haya un aviso de seguridad. En caso de cancelación, se reprogramará para otra fecha.</p>
-    </div>
+                    <div class="faq-item">
+                        <h5><strong>¿Qué incluye el precio del tour?</strong></h5>
+                        <p>El precio incluye el transporte desde el punto de encuentro, guías profesionales, equipo grupal e individual, y todas las comidas durante la actividad.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h5><strong>¿Es necesario tener experiencia previa en actividades al aire libre?</strong></h5>
+                        <p>No es necesario tener experiencia previa. La actividad está diseñada para ser accesible para todos los niveles de habilidad.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h5><strong>¿Qué debo llevar conmigo?</strong></h5>
+                        <p>Recomendamos llevar ropa cómoda y adecuada para el clima, una botella de agua, protector solar, y cualquier medicación personal que pueda necesitar.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h5><strong>¿Hay alguna restricción de edad?</strong></h5>
+                        <p>La actividad es adecuada para personas de todas las edades. Sin embargo, los niños menores de 12 años deben estar acompañados por un adulto.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h5><strong>¿Qué pasa si llueve?</strong></h5>
+                        <p>La actividad se realizará independientemente de las condiciones climáticas, a menos que haya un aviso de seguridad. En caso de cancelación, se reprogramará para otra fecha.</p>
+                    </div>
                 </div>
             </div>
         </div>

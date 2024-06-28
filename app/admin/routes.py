@@ -245,6 +245,7 @@ def crear_actividad():
     if form.validate_on_submit():
         actividad = ActividadTuristica(
             nombre=form.nombre.data,
+            descripcion=form.descripcion_equipamiento.data,
             descripcion_equipamiento=form.descripcion_equipamiento.data,
             nivel_dificultad=form.nivel_dificultad.data,
             nivel_fisico_requerido=form.nivel_fisico_requerido.data,
@@ -263,7 +264,7 @@ def crear_actividad():
             precipitacion_media_anual=form.precipitacion_media_anual.data,
             requerimiento_guia=form.requerimiento_guia.data,
             localizacion_geografica=form.localizacion_geografica.data,
-            precio_referencial=form.precio_referencial.data,
+            precio_referencial = form.precio_referencial.data,
             categoria_id=form.categoria_id.data,
             acceso=form.acceso.data,
         )

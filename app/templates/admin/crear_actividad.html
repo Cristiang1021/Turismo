@@ -29,12 +29,25 @@
                 {% endif %}
             </div>
 
+
             <div class="form-group col-md-6">
-                {{ form.nivel_fisico_requerido.label(class="form-label") }}
-                {{ form.nivel_fisico_requerido(class="form-control", required=True) }}
-                {% if form.nivel_fisico_requerido.errors %}
+                {{ form.descripcion.label(class="form-label") }}
+                {{ form.descripcion(class="form-control", required=True) }}
+                {% if form.descripcion.errors %}
                     <div class="invalid-feedback">
-                        {{ form.nivel_fisico_requerido.errors[0] }}
+                        {% for error in form.descripcion.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group col-md-6">
+                {{ form.descripcion.label(class="form-label") }}
+                {{ form.descripcion(class="form-control", required=True) }}
+                {% if form.descripcion.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.descripcion.errors[0] }}
                     </div>
                 {% endif %}
             </div>
@@ -108,6 +121,7 @@
                     </div>
                 {% endif %}
             </div>
+
 
             <div class="form-group col-md-6">
                 {{ form.descripcion_equipamiento.label(class="form-label") }}

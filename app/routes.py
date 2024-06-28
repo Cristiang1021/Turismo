@@ -202,21 +202,51 @@ def inject_categories():
     categorias = Categoria.query.all()
     return dict(categorias=categorias)
 
-@main_bp.route('/actividades')
+
+@main_bp.route('/actividades', methods=['GET'])
 def actividades():
-    try:
-        actividades = ActividadTuristica.query.all()
-        return render_template('actividades.html', actividades=actividades)
-    except Exception as e:
-        print(e)
-        flash('Error al cargar las actividades.', 'danger')
-        return redirect(url_for('main.index'))
+    categoria_id = request.args.get('categoria')
+    nivel_dificultad = request.args.get('nivel_dificultad')
+    precio_minimo = request.args.get('precio_minimo')
+
+    actividades = ActividadTuristica.query
+
+    if categoria_id:
+        actividades = actividades.filter_by(categoria_id=categoria_id)
+
+    if nivel_dificultad:
+        actividades = actividades.filter_by(nivel_dificultad=nivel_dificultad)
+
+    if precio_minimo:
+        actividades = actividades.filter(ActividadTuristica.precio_referencial >= float(precio_minimo))
+
+    actividades = actividades.all()
+
+    return render_template('actividades.html', actividades=actividades, categorias=Categoria.query.all())
+
 
 @main_bp.route('/categoria/<int:categoria_id>')
 def actividades_por_categoria(categoria_id):
     categoria = Categoria.query.get_or_404(categoria_id)
-    actividades = ActividadTuristica.query.filter_by(categoria_id=categoria.id).all()
-    return render_template('actividades_por_categoria.html', categoria=categoria, actividades=actividades)
+    nivel_dificultad = request.args.get('nivel_dificultad')
+    precio_minimo = request.args.get('precio_minimo')
+    filtro_categoria = request.args.get('categoria')
+
+    actividades = ActividadTuristica.query.filter_by(categoria_id=categoria_id)
+
+    if nivel_dificultad:
+        actividades = actividades.filter_by(nivel_dificultad=nivel_dificultad)
+
+    if precio_minimo:
+        actividades = actividades.filter(ActividadTuristica.precio_referencial >= float(precio_minimo))
+
+    if filtro_categoria:
+        actividades = actividades.filter_by(categoria_id=filtro_categoria)
+
+    actividades = actividades.all()
+
+    return render_template('actividades_por_categoria.html', categoria=categoria, actividades=actividades,
+                           categorias=Categoria.query.all())
 
 @main_bp.route('/profile')
 @login_required
@@ -241,6 +271,7 @@ def ver_actividad(id):
 
 
 
+
 # Función para extraer texto del PDF desde una ruta local
 def extract_text_from_pdf_url(pdf_url):
     response = requests.get(pdf_url)
@@ -256,10 +287,9 @@ def extract_text_from_pdf_url(pdf_url):
         return "Error: Unable to process PDF."
 
 
-pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
-pdf_text = extract_text_from_pdf_url(pdf_url)
-print(f"Extracted PDF text: {pdf_text[:20]}...")  # Imprimir los primeros 20 caracteres para depuración
-
+#pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
+#pdf_text = extract_text_from_pdf_url(pdf_url)
+#print(f"Extracted PDF text: {pdf_text[:20]}...")  # Imprimir los primeros 20 caracteres para depuración
 
 # <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
 
@@ -274,55 +304,70 @@ def query_gpt4(question, context, max_context_length=2000):
         {"role": "user", "content": prompt},
     ]
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",  # Cambia a gpt-3.5-turbo-16k
+        model="gpt-3.5-turbo-16k",
         messages=messages,
         max_tokens=150,
     )
-    answer = response.choices[0].message["content"].strip()
-
-
+    return response.choices[0].message["content"].strip()
 
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
-
     query_result = req.get('queryResult', {})
     action = query_result.get('action', None)
 
     if not action:
-        return jsonify(
-            {"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
+        return jsonify({"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
 
     if action == 'consultar_actividades':
         categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
         return consultar_actividades(categoria_nombre)
-    elif action == 'dar_consejos':
-        actividad_nombre = query_result.get('parameters', {}).get('actividad', None)
-        return dar_consejos(actividad_nombre)
     elif action == 'pregunta_gpt4':
         question = query_result.get('queryText')
-        context = pdf_text
+        context = pdf_text  # Utilizar el texto del PDF como contexto
         answer = query_gpt4(question, context)
-        # Personalizar la respuesta si es necesario
         return jsonify({"fulfillmentText": answer})
-    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
+    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
 
 def consultar_actividades(categoria_nombre):
     if categoria_nombre == 'general':
         actividades = ActividadTuristica.query.all()
-        actividades_text = "\n ".join([actividad.nombre for actividad in actividades])
-        response_text = f"Todas las actividades: {actividades_text}"
     else:
         categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
-        if categoria and categoria.actividades:
-            actividades = [actividad.nombre for actividad in categoria.actividades]
-            actividades_text = "\n- ".join(actividades)
-            response_text = f"Actividades en la categoría: {categoria_nombre}: {actividades_text}"
+        if categoria:
+            actividades = categoria.actividades
         else:
-            response_text = f"No se han encontrado actividades en la categoría: {categoria_nombre}."
-    return jsonify({"fulfillmentText": response_text})
+            return jsonify({"fulfillmentText": f"No se encontraron actividades en la categoría {categoria_nombre}."})
 
+    if not actividades:
+        return jsonify({"fulfillmentText": f"No se encontraron actividades en la categoría {categoria_nombre}."})
+
+    rich_responses = []
+    for actividad in actividades:
+        image_url = f"https://4427-45-225-45-13.ngrok-free.app/imagen_actividad/{actividad.imagenes[0].id}" if actividad.imagenes else ""
+        link_url = f"https://4427-45-225-45-13.ngrok-free.app/actividades/{actividad.id}"
+
+        rich_response = {
+            "card": {
+                "title": actividad.nombre,
+                "subtitle": actividad.descripcion_equipamiento,
+                "imageUri": image_url,
+                "buttons": [
+                    {
+                        "text": "Más información",
+                        "postback": link_url
+                    }
+                ]
+            }
+        }
+        rich_responses.append(rich_response)
+
+    response = {
+        "fulfillmentMessages": rich_responses
+    }
+
+    return jsonify(response)
 
 def dar_consejos(actividad_nombre):
     actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()

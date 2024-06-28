@@ -119,10 +119,72 @@ body {
 }
 
 .footer {
-    background: #333;
+    background-color: #1a1a1a;
     color: white;
-    padding: 20px;
-    text-align: center;
+    padding: 40px 0;
+    text-align: left;
+    border-top: 5px solid #28a745;
+}
+
+.footer h5 {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.footer p {
+    color: #ccc;
+}
+
+.footer a {
+    color: #28a745;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: white;
+}
+
+.footer .social-icons {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    gap: 10px;
+}
+
+.footer .social-icons li {
+    display: inline;
+}
+
+.footer .social-icons a {
+    color: #28a745;
+    font-size: 24px;
+    transition: color 0.3s ease;
+}
+
+.footer .social-icons a:hover {
+    color: white;
+}
+
+.footer .text-center {
+    margin-top: 20px;
+    border-top: 1px solid #444;
+    padding-top: 20px;
+}
+
+#map-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding-top: 56.25%; /* Aspect ratio 16:9 */
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .form-label {
@@ -162,10 +224,10 @@ body {
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0); /* Fondo semitransparente */
     color: white;
-    padding: 20px;
+    padding: 60px;
     border-radius: 10px;
     text-align: center;
-    width: 110%; /* Asegurar que la superposición no ocupe todo el ancho */
+    width: 100%; /* Asegurar que la superposición no ocupe todo el ancho */
 }
 
 .overlay h1 {
@@ -253,4 +315,204 @@ body {
 
 .btn-dark:hover {
     background-color: #333;
+}
+
+/* Estilos para la vista de actividades por categoría */
+.filter-sidebar {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-sidebar h4 {
+    margin-bottom: 20px;
+}
+
+.filter-sidebar label {
+    font-weight: bold;
+}
+
+.filter-sidebar .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-sidebar .form-group {
+    flex: 1;
+    margin-bottom: 20px;
+}
+
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-footer {
+    background-color: #fff;
+    border-top: 0;
+    padding: 10px 15px;
+}
+
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+}
+
+
+.filter-sidebar {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-sidebar h4 {
+    margin-bottom: 20px;
+}
+
+.filter-sidebar label {
+    font-weight: bold;
+}
+
+.filter-sidebar .form-group {
+    margin-bottom: 15px;
+}
+
+.filter-sidebar .form-control {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.filter-sidebar .btn-primary {
+    width: 100%;
+    padding: 10px;
+}
+
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+.card-footer {
+    background-color: #fff;
+    border-top: 0;
+    padding: 10px 15px;
+}
+
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+}
+
+.hero {
+    position: relative;
+    height: 70vh;
+    background: url('{{ url_for('static', filename='img/image.jpg') }}') no-repeat center center/cover;
+}
+
+.hero .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero .overlay .search-box {
+    position: absolute;
+    bottom: -30px;
+    width: 100%;
+}
+
+.search-box .container {
+    display: flex;
+    justify-content: center;
+}
+
+.search-form {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%; /* Ajusta el ancho según sea necesario */
+    max-width: 600px; /* Establece un ancho máximo para pantallas más grandes */
+}
+
+.search-form input {
+    border: none;
+    border-radius: 50px;
+    box-shadow: none;
+    flex-grow: 1;
+    background-color: rgba(255, 255, 255, 0.3); /* Ajusta la transparencia aquí */
+    color: white; /* Para que el texto sea visible sobre el fondo transparente */
+    padding: 10px 15px; /* Ajusta el relleno para mayor altura */
+    font-size: 1.2rem; /* Aumenta el tamaño de la fuente si es necesario */
+}
+
+.search-form button {
+    border-radius: 50px;
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-form button:hover {
+    background-color: #218838;
 }

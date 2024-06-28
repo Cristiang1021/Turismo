@@ -69,7 +69,8 @@ class CategoriaForm(FlaskForm):
 
 class ActividadTuristicaForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
-    descripcion_equipamiento = TextAreaField('Descripción del Equipamiento', validators=[DataRequired()])
+    descripcion= StringField('Descripción', validators=[DataRequired()])
+    descripcion_equipamiento = TextAreaField('Equipamiento', validators=[DataRequired()])
     nivel_dificultad = SelectField('Nivel de Dificultad',
                                    choices=[('Fácil', 'Fácil'), ('Medio', 'Medio'), ('Difícil', 'Difícil')])
     nivel_fisico_requerido = SelectField('Nivel Físico Requerido',
@@ -91,7 +92,7 @@ class ActividadTuristicaForm(FlaskForm):
                                      choices=[('Si', 'Si'), ('No', 'No')])
     localizacion_geografica = StringField('Localización Geográfica', validators=[DataRequired()])
     acceso = TextAreaField('Acceso', validators=[DataRequired()])
-    precio_referencial = StringField('Precio Referencial', validators=[DataRequired()])
+    precio_referencial = StringField('Precio Referencial')
     categoria_id = SelectField('Categoría', coerce=int, validators=[DataRequired()])
     imagenes = FileField('Imágenes', validators=[
         FileAllowed(['jpg', 'png', 'webp', 'jpeg'], 'Imágenes solamente!')], render_kw={"multiple": True})
