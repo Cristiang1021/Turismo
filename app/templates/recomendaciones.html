@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Recomendaciones{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="highlight-banner position-relative mb-4 rounded-lg overflow-hidden">
+    <div class="highlight-banner-image" style="background-image: url('{{ url_for('static', filename='recomendaciones.png') }}');"></div>
+    <div class="highlight-text position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-center text-white">
+        <h1 class="display-4">Encuentra las mejores recomendaciones para ti!</h1>
+        <p class="lead">Basadas en tus preferencias</p>
+    </div>
+    </div>
+
+    {% if not respuestas %}
+    <div class="">
+        <div class="card-header text-center">
+            <h2>Encuentra Tu Actividad Ideal</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.recomendaciones') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.pregunta1.label(class="form-label font-weight-bold") }}
+                    {{ form.pregunta1(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.pregunta2.label(class="form-label font-weight-bold") }}
+                    {{ form.pregunta2(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.pregunta3.label(class="form-label font-weight-bold") }}
+                    {{ form.pregunta3(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.pregunta4.label(class="form-label font-weight-bold") }}
+                    {{ form.pregunta4(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.pregunta5.label(class="form-label font-weight-bold") }}
+                    {{ form.pregunta5(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.pregunta6.label(class="form-label font-weight-bold") }}
+                    {{ form.pregunta6(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.pregunta7.label(class="form-label font-weight-bold") }}
+                    {{ form.pregunta7(class="form-control") }}
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    {% if recomendaciones %}
+    <div class="row" id="actividades-container">
+        {% for actividad in recomendaciones[:3] %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="{{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ actividad.nombre }}</h5>
+                    <p class="card-text">{{ actividad.descripcion[:100] }}...</p>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-primary btn-sm">Ver más</a>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="badge {% if actividad.nivel_dificultad == 'Fácil' %}badge-success{% elif actividad.nivel_dificultad == 'Medio' %}badge-warning{% else %}badge-danger{% endif %}">
+                        {{ actividad.nivel_dificultad }}
+                    </span>
+                    <span class="float-right">${{ actividad.precio_referencial }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No hay actividades recomendadas en este momento.</p>
+    {% endif %}
+    {% endif %}
+</div>
+
+<style>
+    .highlight-banner {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        border-radius: 0.5rem;
+    }
+
+    .highlight-banner-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .highlight-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        text-align: center;
+    }
+
+    .card-footer span.badge {
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Actividades Disponibles{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Actividades Disponibles</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Filtros de búsqueda -->
+            <div class="filter-sidebar p-3 shadow-sm rounded">
+                <h4>Filtrar Actividades</h4>
+                <form id="filtro-form">
+                    <div class="form-group">
+                        <label for="categoria">Categoría</label>
+                        <select class="form-control" id="categoria" name="categoria">
+                            <option value="">Todas</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if categoria.id|string == request.args.get('categoria') %}selected{% endif %}>{{ categoria.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nivel_dificultad">Dificultad</label>
+                        <select class="form-control" id="nivel_dificultad" name="nivel_dificultad">
+                            <option value="">Todas</option>
+                            <option value="Fácil" {% if 'Fácil' == request.args.get('nivel_dificultad') %}selected{% endif %}>Fácil</option>
+                            <option value="Medio" {% if 'Medio' == request.args.get('nivel_dificultad') %}selected{% endif %}>Medio</option>
+                            <option value="Dificil" {% if 'Dificil' == request.args.get('nivel_dificultad') %}selected{% endif %}>Difícil</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio_minimo">Precio Mínimo</label>
+                        <input type="number" class="form-control" id="precio_minimo" name="precio_minimo" placeholder="Precio Mínimo" value="{{ request.args.get('precio_minimo', '') }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Aplicar Filtros</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="row" id="actividades-container">
+                {% for actividad in actividades %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if actividad.imagenes %}
+                        <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}">
+                        {% else %}
+                        <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ actividad.nombre }}</h5>
+                            <p class="card-text">{{ actividad.descripcion[:100] }}...</p>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-primary btn-sm">Ver más</a>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="badge {% if actividad.nivel_dificultad == 'Fácil' %}badge-success{% elif actividad.nivel_dificultad == 'Medio' %}badge-warning{% else %}badge-danger{% endif %}">
+                                {{ actividad.nivel_dificultad }}
+                            </span>
+                            <span class="float-right">${{ actividad.precio_referencial }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('filtro-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const categoria = document.getElementById('categoria').value;
+    const nivelDificultad = document.getElementById('nivel_dificultad').value;
+    const precioMinimo = document.getElementById('precio_minimo').value;
+
+    let queryParams = '?';
+    if (categoria) {
+        queryParams += `categoria=${categoria}&`;
+    }
+    if (nivelDificultad) {
+        queryParams += `nivel_dificultad=${nivelDificultad}&`;
+    }
+    if (precioMinimo) {
+        queryParams += `precio_minimo=${precioMinimo}&`;
+    }
+
+    window.location.href = window.location.pathname + queryParams.slice(0, -1);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Token Expirado{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .expired-container {
+            display: flex;
+            min-height: 110px;
+            justify-content: center;
+        }
+        .expired-message {
+            background: rgba(255, 255, 255);
+            padding: 2rem;
+            border-radius: 10px;
+            width: 50%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            color: black;
+            text-align: center;
+        }
+        .expired-message h2 {
+            margin-bottom: 1.5rem;
+        }
+        .btn-primary {
+            margin-top: 1rem;
+        }
+    </style>
+<body>
+    <div class="expired-container">
+        <div class="expired-message">
+            <h2>El token ha expirado</h2>
+            <p>El enlace para restablecer su contraseña ha expirado. Por favor, solicite un nuevo enlace.</p>
+            <a href="{{ url_for('main.reset_request') }}" class="btn btn-primary">Solicitar nuevo enlace</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+{% endblock %}

@@ -1,0 +1,79 @@
+<footer class="footer mt-5 py-4 bg-dark text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <h5 class="text-uppercase">San Andrés</h5>
+                <p>Explora las mejores actividades y lugares en San Andrés. Descubre tu próxima aventura.</p>
+            </div>
+            <div class="col-md-3">
+                <h5 class="text-uppercase">Quiénes somos</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#">Acerca de</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5 class="text-uppercase">Manténgase conectado</h5>
+                <ul class="list-unstyled social-icons">
+                    <li><a href="#"><i class="fab fa-facebook"></i></a></li>
+                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                    <li><a href="#"><i class="fab fa-tiktok"></i></a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i></a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5 class="text-uppercase">Mapa de San Andrés</h5>
+                <div id="map-container">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-3">
+            <p>&copy; 2023 San Andrés. Todos los derechos reservados.</p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+        chat-icon="https:&#x2F;&#x2F;img.freepik.com&#x2F;foto-gratis&#x2F;ilustracion-3d-hombre-negocios-auriculares-sobre-fondo-borroso-concepto-empresarial_1142-51038.jpg?size=338&ampext=jpg&ampga=GA1.1.1788068356.1716508800&ampsemt=ais_user"
+        intent="WELCOME"
+        chat-title="ViajeroDigital"
+        agent-id="00015f6f-b220-4432-b810-9f4c38361e38"
+        language-code="es">
+    </df-messenger>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Coordenadas de San Andrés, Guano, Chimborazo, Ecuador
+        var sanAndresCoords = [-1.664499, -78.654297];
+
+        // Inicializa el mapa de Leaflet
+        var map = L.map('map').setView(sanAndresCoords, 13);
+
+        // Carga y muestra el mapa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Agrega un marcador en San Andrés, Guano, Chimborazo, Ecuador
+        L.marker(sanAndresCoords).addTo(map)
+            .bindPopup('San Andrés, Guano, Chimborazo, Ecuador')
+            .openPopup();
+    });
+</script>
+
+
+
+</footer>

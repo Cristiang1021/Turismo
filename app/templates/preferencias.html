@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Preferencias{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 text-center">
+            <button id="btn-preferencias" class="btn btn-outline-primary btn-lg w-100 mb-4">
+                <img src="{{ url_for('static', filename='Usuario.png') }}" alt="Preferencias" class="img-fluid">
+                <h3 class="mt-2">Preferencias</h3>
+            </button>
+        </div>
+        <div class="col-md-6 text-center">
+            <button id="btn-visitas" class="btn btn-outline-primary btn-lg w-100 mb-4">
+                <img src="{{ url_for('static', filename='visita.png') }}" alt="Visitas" class="img-fluid">
+                <h3 class="mt-2">Visitas</h3>
+            </button>
+        </div>
+    </div>
+
+    <div id="preferencias-form" class="mt-5" style="display:none;">
+        <h2>Editar Preferencias</h2>
+        <form method="POST" action="{{ url_for('main.preferencias') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.pregunta1.label(class="form-label font-weight-bold") }}
+                {{ form.pregunta1(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.pregunta2.label(class="form-label font-weight-bold") }}
+                {{ form.pregunta2(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.pregunta3.label(class="form-label font-weight-bold") }}
+                {{ form.pregunta3(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.pregunta4.label(class="form-label font-weight-bold") }}
+                {{ form.pregunta4(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.pregunta5.label(class="form-label font-weight-bold") }}
+                {{ form.pregunta5(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.pregunta6.label(class="form-label font-weight-bold") }}
+                {{ form.pregunta6(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.pregunta7.label(class="form-label font-weight-bold") }}
+                {{ form.pregunta7(class="form-control") }}
+            </div>
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">Enviar</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="visitas-list" class="mt-5" style="display:none;">
+        <h2>Mis Visitas</h2>
+        {% if visitas %}
+            <div class="row">
+                {% for visita in visitas %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <img src="{{ url_for('main.get_actividad_image', id=visita.actividad_turistica.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ visita.actividad_turistica.nombre }}" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ visita.actividad_turistica.nombre }}</h5>
+                                <p class="card-text">{{ visita.reseña }}</p>
+                                <span class="badge badge-info">Visita el {{ visita.fecha_visita }}</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="valoracion">
+                                        {% for i in range(1, 6) %}
+                                            {% if i <= visita.valoracion %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <a href="{{ url_for('main.ver_actividad', id=visita.actividad_turistica.id) }}" class="btn btn-primary btn-sm">Ver actividad</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No has registrado ninguna visita.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.getElementById('btn-preferencias').addEventListener('click', function() {
+    document.getElementById('preferencias-form').style.display = 'block';
+    document.getElementById('visitas-list').style.display = 'none';
+});
+
+document.getElementById('btn-visitas').addEventListener('click', function() {
+    document.getElementById('preferencias-form').style.display = 'none';
+    document.getElementById('visitas-list').style.display = 'block';
+});
+</script>
+
+<style>
+    .btn-outline-primary {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+    }
+
+    .btn-outline-primary img {
+        max-height: 100px;
+        width: auto;
+    }
+
+    .btn-outline-primary h3 {
+        margin-top: 10px;
+    }
+
+    .valoracion i {
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}

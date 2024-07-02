@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Actividades - {{ categoria.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="highlight-banner position-relative mb-4 rounded-lg overflow-hidden">
+        <img src="{{ url_for('main.get_categoria_image', id=categoria.id) }}" class="img-fluid w-100" alt="Imagen de {{ categoria.nombre }}">
+        <div class="highlight-text position-absolute w-100 h-100 d-flex flex-column justify-content-center align-items-center text-white">
+            <h1 class="display-4">Explora las mejores actividades en {{ categoria.nombre }}</h1>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <button class="btn btn-primary" data-toggle="collapse" data-target="#filter-sidebar" aria-expanded="false" aria-controls="filter-sidebar">Filtros</button>
+    </div>
+
+    <div class="collapse" id="filter-sidebar">
+        <div class="filter-sidebar bg-light p-3 mb-4 rounded shadow-sm">
+            <h4 class="mb-4">Filtrar Actividades</h4>
+            <form method="GET" action="{{ url_for('main.actividades_por_categoria', categoria_id=categoria.id) }}">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label for="nivel_dificultad">Nivel de Dificultad</label>
+                        <select class="form-control" id="nivel_dificultad" name="nivel_dificultad">
+                            <option value="">Todos</option>
+                            <option value="Fácil">Fácil</option>
+                            <option value="Medio">Medio</option>
+                            <option value="Difícil">Difícil</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="precio_minimo">Precio Mínimo</label>
+                        <input type="number" class="form-control" id="precio_minimo" name="precio_minimo" placeholder="Precio Mínimo">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="categoria">Categoría</label>
+                        <select class="form-control" id="categoria" name="categoria">
+                            <option value="">Todas</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+            <div class="row" id="actividades-container">
+                {% for actividad in actividades %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if actividad.imagenes %}
+                        <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}">
+                        {% else %}
+                        <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ actividad.nombre }}</h5>
+                            <p class="card-text">{{ actividad.descripcion[:100] }}...</p>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-primary btn-sm">Ver más</a>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="badge {% if actividad.nivel_dificultad == 'Fácil' %}badge-success{% elif actividad.nivel_dificultad == 'Medio' %}badge-warning{% else %}badge-danger{% endif %}">
+                                {{ actividad.nivel_dificultad }}
+                            </span>
+                            <span class="float-right">${{ actividad.precio_referencial }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+</div>
+
+<style>
+    .highlight-banner {
+        height: 300px;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+    .highlight-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+</style>
+{% endblock %}

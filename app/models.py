@@ -1,0 +1,170 @@
+# app/models.py
+import logging
+from time import time
+
+import jwt
+from flask import current_app
+from itsdangerous import Serializer
+import json
+from app import db, login_manager
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+from datetime import datetime
+
+
+class Usuario(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(255))
+    correo = db.Column(db.String(255), unique=True)
+    contraseña_hash = db.Column(db.String(256))
+    es_admin = db.Column(db.Boolean, default=False)
+    respuestas = db.relationship('RespuestasFormulario', backref='user', lazy=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    @property
+    def password(self):
+        return self.contraseña_hash
+
+    @password.setter
+    def password(self, contraseña):
+        self.contraseña_hash = generate_password_hash(contraseña)
+
+    def check_password(self, contraseña):
+        return check_password_hash(self.contraseña_hash, contraseña)
+
+    def get_reset_token(self, expires_sec=3600):
+        token = jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_sec},
+            current_app.config['SECRET_KEY'], algorithm='HS256'
+        )
+        return token
+
+    @staticmethod
+    def verify_reset_token(token):
+        try:
+            id = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
+        except:
+            return None
+        return Usuario.query.get(id)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Usuario.query.get(int(user_id))
+
+class Categoria(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), unique=True, nullable=False)
+    descripcion = db.Column(db.String(100), unique=False, nullable=False)
+    image_name = db.Column(db.String(255))
+    image_data = db.Column(db.LargeBinary)
+    image_mimetype = db.Column(db.String(50))
+    actividades = db.relationship('ActividadTuristica', backref='categoria', lazy=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+    def __repr__(self):
+        return f"<Categoria {self.nombre}, Image Length: {len(self.image_data) if self.image_data else 0}>"
+
+class ActividadTuristica(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    descripcion = db.Column(db.Text, nullable=True)
+    descripcion_equipamiento = db.Column(db.Text, nullable=False)
+    nivel_dificultad = db.Column(db.String(50), nullable=False)
+    nivel_fisico_requerido = db.Column(db.String(50), nullable=False)
+    tiempo_promedio_duracion = db.Column(db.String(100), nullable=False)
+    sitio = db.Column(db.String(100), nullable=False)
+    cota_maxima = db.Column(db.Integer)
+    cota_minima = db.Column(db.Integer)
+    desnivel_subida = db.Column(db.Integer)
+    desnivel_bajada = db.Column(db.Integer)
+    lugar_partida = db.Column(db.String(100), nullable=False)
+    lugar_llegada = db.Column(db.String(100), nullable=False)
+    epoca_recomendada = db.Column(db.String(100), nullable=False)
+    tipo_superficie = db.Column(db.String(100), nullable=False)
+    temperatura_minima = db.Column(db.Integer)
+    temperatura_maxima = db.Column(db.Integer)
+    precipitacion_media_anual = db.Column(db.Integer)
+    requerimiento_guia = db.Column(db.Text, nullable=False)
+    localizacion_geografica = db.Column(db.String(100), nullable=False)
+    acceso = db.Column(db.Text, nullable=False)
+    precio_referencial = db.Column(db.Numeric(10, 2), nullable=True)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=False)
+    imagenes = db.relationship('ImagenActividad', backref='actividad', lazy=True)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    # ... otros campos según necesidad
+    def __repr__(self):
+        return f"<ImagenActividad {self.name}, Image Length: {len(self.data) if self.data else 0}>"
+
+class ImagenActividad(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    data = db.Column(db.LargeBinary, nullable=False)
+    mimetype = db.Column(db.String(50), nullable=False)
+    actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'))
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+
+
+class RespuestasFormulario(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    pregunta1 = db.Column(db.String(50), nullable=False)
+    pregunta2 = db.Column(db.String(50), nullable=False)
+    pregunta3 = db.Column(db.String(50), nullable=False)
+    pregunta4 = db.Column(db.String(50), nullable=False)
+    pregunta5 = db.Column(db.String(50), nullable=False)
+    pregunta6 = db.Column(db.String(50), nullable=False)
+    pregunta7 = db.Column(db.String(50), nullable=False)
+
+
+class ActividadVista(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'), nullable=False)
+    vistas = db.Column(db.Integer, default=0, nullable=False)
+    fecha_vista = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    usuario = db.relationship('Usuario', backref='vistas_actividades')
+    actividad = db.relationship('ActividadTuristica', backref='vistas_por_usuarios')
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+
+class ActividadRecomendada(db.Model):
+    __tablename__ = 'actividad_recomendada'
+    id = db.Column(db.Integer, primary_key=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'), nullable=False)
+    motivo = db.Column(db.String(255), nullable=False)  # Motivo de la recomendación
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+    def __repr__(self):
+        return f"<ActividadRecomendada {self.id}, Usuario: {self.usuario_id}, Actividad: {self.actividad_id}>"
+
+
+class Visita(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'), nullable=False)
+    fecha_registro = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    fecha_visita = db.Column(db.Date, nullable=False)
+    valoracion = db.Column(db.Integer, nullable=False)  # Valoración con estrellas
+    reseña = db.Column(db.Text, nullable=True)
+    fotos = db.relationship('FotoVisita', backref='visita', lazy=True)
+    actividad_turistica = db.relationship('ActividadTuristica', backref='visitas', lazy=True)  # Relación con ActividadTuristica
+
+    def __repr__(self):
+        return f'<Visita {self.id} - User {self.user_id} - Actividad {self.actividad_id}>'
+
+
+class FotoVisita(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    visita_id = db.Column(db.Integer, db.ForeignKey('visita.id'), nullable=False)
+    data = db.Column(db.LargeBinary, nullable=False)
+    mimetype = db.Column(db.String(120), nullable=False)
+    filename = db.Column(db.String(120), nullable=False)
+
+    def __repr__(self):
+        return f'<FotoVisita {self.id} - Visita {self.visita_id}>'
