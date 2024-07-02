@@ -213,7 +213,7 @@ def reset_token(token):
 def token_expired():
     return render_template('token_expired.html', title='Token Expirado')
 
-@main_bp.route("/reset_password", methods=['GET', 'POST'])
+@main_bp.route('/reset_request', methods=['GET', 'POST'])
 def reset_request():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -222,9 +222,11 @@ def reset_request():
         user = Usuario.query.filter_by(correo=form.correo.data).first()
         if user:
             send_reset_email(user)
-        flash('Se ha enviado un correo electrónico con las instrucciones para restablecer su contraseña.', 'info')
+        flash('Si el correo está registrado, se le enviará un enlace para restablecer su contraseña.', 'info')
         return redirect(url_for('main.login'))
-    return render_template('reset_request.html', title='Restablecer Contraseña', form=form)
+    return render_template('reset_request.html', title='Solicitar Restablecimiento de Contraseña', form=form)
+
+
 
 
 

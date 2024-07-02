@@ -87,10 +87,10 @@ class RequestResetForm(FlaskForm):
     correo = StringField('Correo electrónico', validators=[DataRequired(), Email()])
     submit = SubmitField('Solicitar Restablecimiento de Contraseña')
 
-    def validate_correo(self, correo):
-        user = Usuario.query.filter_by(correo=correo.data).first()
-        if user is None:
-            raise ValidationError('No hay cuenta con ese correo electrónico. Debe registrarse primero.')
+   ## def validate_correo(self, correo):
+    ##    user = Usuario.query.filter_by(correo=correo.data).first()
+      ##  if user is None:
+        ##    raise ValidationError('No hay cuenta con ese correo electrónico. Debe registrarse primero.')
 
 class ResetPasswordForm(FlaskForm):
     contraseña = PasswordField('Contraseña', validators=[
