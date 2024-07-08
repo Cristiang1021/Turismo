@@ -444,6 +444,55 @@ def query_gpt4(question, context, max_context_length=2000):
     )
     return response.choices[0].message["content"].strip()
 
+
+# Función para consultar actividades
+def consultar_actividades(categoria_nombre):
+    actividades = ActividadTuristica.query.join(Categoria).filter(Categoria.nombre == categoria_nombre).all()
+    if not actividades:
+        return jsonify({"fulfillmentText": f"No se encontraron actividades en la categoría {categoria_nombre}."})
+
+    elementos = []
+    for actividad in actividades:
+        imagen_url = None
+        if actividad.imagenes:
+            imagen_url = f"https://turismo-85gv.onrender.com/imagen_actividad/{actividad.imagenes[0].id}"
+
+        elementos.append([
+            {
+                "type": "image",
+                "rawUrl": imagen_url if imagen_url else "URL DE UNA IMAGEN POR DEFECTO",
+                "accessibilityText": actividad.nombre
+            },
+            {
+                "type": "info",
+                "title": actividad.nombre,
+                "subtitle": actividad.descripcion_equipamiento,
+                "actionLink": f"https://turismo-85gv.onrender.com/actividades/{actividad.id}"
+            }
+        ])
+
+    respuesta = {
+        "fulfillmentMessages": [
+            {
+                "payload": {
+                    "richContent": elementos
+                }
+            }
+        ]
+    }
+
+    return jsonify(respuesta)
+
+
+# Función para manejar las acciones del webhook
+def handle_webhook_action(action, query_result):
+    if action == 'consultar_actividades':
+        categoria_nombre = query_result.get('parameters', {}).get('categoria', '').capitalize()
+        return consultar_actividades(categoria_nombre)
+    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+
+
+# Ruta para el webhook
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
@@ -453,55 +502,7 @@ def webhook():
     if not action:
         return jsonify({"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
 
-    if action == 'consultar_actividades':
-        categoria_nombre = query_result.get('parameters', {}).get('categoria', 'general')
-        return consultar_actividades(categoria_nombre)
-    elif action == 'pregunta_gpt4':
-        question = query_result.get('queryText')
-        context = pdf_text  # Utilizar el texto del PDF como contexto
-        answer = query_gpt4(question, context)
-        return jsonify({"fulfillmentText": answer})
-
-    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
-
-def consultar_actividades(categoria_nombre):
-    if categoria_nombre == 'general':
-        actividades = ActividadTuristica.query.all()
-    else:
-        categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
-        if categoria:
-            actividades = categoria.actividades
-        else:
-            return jsonify({"fulfillmentText": f"No se encontraron actividades en la categoría {categoria_nombre}."})
-
-    if not actividades:
-        return jsonify({"fulfillmentText": f"No se encontraron actividades en la categoría {categoria_nombre}."})
-
-    rich_responses = []
-    for actividad in actividades:
-        image_url = f"https://4427-45-225-45-13.ngrok-free.app/imagen_actividad/{actividad.imagenes[0].id}" if actividad.imagenes else ""
-        link_url = f"https://4427-45-225-45-13.ngrok-free.app/actividades/{actividad.id}"
-
-        rich_response = {
-            "card": {
-                "title": actividad.nombre,
-                "subtitle": actividad.descripcion_equipamiento,
-                "imageUri": image_url,
-                "buttons": [
-                    {
-                        "text": "Más información",
-                        "postback": link_url
-                    }
-                ]
-            }
-        }
-        rich_responses.append(rich_response)
-
-    response = {
-        "fulfillmentMessages": rich_responses
-    }
-
-    return jsonify(response)
+    return handle_webhook_action(action, query_result)
 
 def dar_consejos(actividad_nombre):
     actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()

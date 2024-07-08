@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from config import Config
 from flask_wtf.csrf import CSRFProtect
+from flask_cors import CORS
 
 # Inicializa las extensiones globales sin una aplicación específica
 db = SQLAlchemy()
