@@ -1,0 +1,57 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Listado de Eventos</h2>
+    <a href="{{ url_for('admin.nuevo_evento') }}" class="btn btn-primary mb-2">Crear Nuevo Evento</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Vista</th>
+                <th>Nombre</th>
+                <th>Fecha</th>
+                <th>Lugar</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evento in eventos %}
+            <tr>
+                <td>
+                    {% if evento.imagenes %}
+                    <img src="{{ url_for('main.get_evento_image', id=evento.imagenes[0].id) }}" alt="{{ evento.nombre }}" style="height: 60px; width: auto;">
+                    {% else %}
+                    <img src="https://via.placeholder.com/60" alt="No image available" style="height: 60px; width: auto;">
+                    {% endif %}
+                </td>
+                <td>{{ evento.nombre }}</td>
+                <td>{{ evento.fecha }}</td>
+                <td>{{ evento.lugar }}</td>
+                <td>{{ evento.descripcion }}</td>
+                <td>
+                    <a href="{{ url_for('admin.editar_evento', evento_id=evento.id) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i></a>
+                    <form action="{{ url_for('admin.eliminar_evento', evento_id=evento.id) }}" method="post" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este evento?');"><i class="fas fa-trash-alt"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {%- for page_num in eventos.iter_pages() %}
+            {% if eventos.page == page_num %}
+            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+            {% elif page_num %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('admin.eventos', page=page_num) }}">{{ page_num }}</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+            {%- endfor %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

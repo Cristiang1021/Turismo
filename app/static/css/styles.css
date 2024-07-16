@@ -1,100 +1,130 @@
-/* app/static/css/styles.css */
-
 body {
     font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
+    background-color: #ffffff;
     color: #333;
-    background-color: #f8f9fa;
-}
-
-.hero {
-    background: url('../img/image.jpg') no-repeat center center/cover;
-    height: 70vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    color: white;
-}
-
-.header-content {
-    width: 70%;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
+    padding-top: 20px;
 }
 
 .navbar {
-    background: rgba(0, 0, 0, 0.5);
+    background: #f8f9fa;
     width: 100%;
     position: fixed;
     top: 0;
     z-index: 1000;
 }
 
+.navbar .navbar-brand, .navbar .nav-link {
+    color: #333;
+    font-weight: bold;
+}
+
 .navbar .navbar-brand {
-    color: white;
+    display: flex;
+    align-items: center;
 }
 
-.navbar .nav-link {
-    color: white;
+.navbar .navbar-brand img {
+    margin-right: 10px;
 }
 
-.header-content h1 {
-    font-size: 36px;
-    margin: 0;
+.navbar .form-inline {
+    max-width: 300px;
 }
 
-.header-content p {
-    font-size: 18px;
-    margin: 20px 0;
+.navbar .form-inline .form-control {
+    border-radius: 50px 50px;
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    width: 100%;
 }
 
-.btn-primary {
-    background: #000000;
+.navbar .form-inline .btn {
+    border-radius: 0 50px 50px 0;
+    background-color: #ff9800;
     color: white;
     padding: 10px 20px;
-    text-decoration: none;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background 0.3s;
-}
-
-.btn-primary:hover {
-    background: #333333;
-}
-
-.btn-outline-secondary {
-    background: white;
-    color: black;
-    padding: 10px 20px;
-    text-decoration: none;
-    font-size: 16px;
-    border: 2px solid black;
-    border-radius: 5px;
-    transition: background 0.3s;
-}
-
-.flash-messages {
-    position: absolute; /* Add this line */
-    top: 20px; /* Adjust as needed */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50%; /* Adjust as needed */
-    z-index: 1000; /* Add this line */
-}
-
-.alert {
-    background: rgba(0, 0, 0, 0.5);
     border: none;
-    color: white;
+    cursor: pointer;
 }
 
-.btn-outline-secondary:hover {
-    background: #f8f8f8;
+.navbar .form-inline .btn:hover {
+    background-color: #e68900;
+}
+
+.navbar .dropdown-toggle {
+    display: flex;
+    align-items: center;
+}
+
+.navbar .dropdown-toggle i {
+    margin-right: 5px;
+}
+
+
+.hero {
+    padding: 60px 0;
+}
+
+.hero .container {
+    max-width: 1200px;
+}
+
+.hero .btn-warning {
+    background-color: #ff9800; /* Color acorde */
+    border: none;
+}
+
+.hero .btn-warning:hover {
+    background-color: #e68900; /* Cambia el color al pasar el mouse */
+}
+
+.search-box form {
+    display: flex;
+    align-items: center;
+}
+
+.search-box .form-control {
+    flex-grow: 1;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 50px;
+    padding: 10px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-form input {
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    flex-grow: 1;
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #333;
+    font-size: 1rem;
+}
+
+.search-form button {
+    border-radius: 50px;
+    background-color: #ff9800;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-form button:hover {
+    background-color: #e68900;
 }
 
 .carousel-categories, .carousel-featured, .carousel-activities {
@@ -123,40 +153,33 @@ body {
     color: black;
 }
 
-.card {
-    transition: transform 0.3s ease-in-out;
-    border-radius: 10px;
-}
-
-.card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
 .footer {
-    background-color: #1a1a1a;
+    background: #f8f9fa;
+    color: #333;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* Estilos adicionales para otras secciones */
+
+.flash-messages {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    z-index: 1000;
+}
+
+.alert {
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
     color: white;
-    padding: 40px 0;
-    text-align: left;
-    border-top: 5px solid #28a745;
 }
 
-.footer h5 {
-    font-weight: bold;
-    margin-bottom: 20px;
-}
-
-.footer p {
-    color: #ccc;
-}
-
-.footer a {
-    color: #28a745;
-    text-decoration: none;
-}
-
-.footer a:hover {
-    color: white;
+.carousel-categories, .carousel-featured, .carousel-activities {
+    margin: 0 auto;
+    padding: 20px 0;
 }
 
 .footer .social-icons {
@@ -172,13 +195,13 @@ body {
 }
 
 .footer .social-icons a {
-    color: #28a745;
+    color: #ff9800;
     font-size: 24px;
     transition: color 0.3s ease;
 }
 
 .footer .social-icons a:hover {
-    color: white;
+    color: #333;
 }
 
 .footer .text-center {
@@ -208,8 +231,8 @@ body {
 
 /* Estilos personalizados para la página de inicio */
 .card-img-top {
-    height: 200px; /* Fija la altura para todas las imágenes de las tarjetas */
-    object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
+    height: 200px;
+    object-fit: cover;
 }
 
 #explore .card {
@@ -218,10 +241,9 @@ body {
 
 #explore .card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
-/* Estilos para la sección con imagen y texto superpuesto */
 .position-relative {
     position: relative;
 }
@@ -237,12 +259,12 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0); /* Fondo semitransparente */
+    background: rgba(0, 0, 0, 0);
     color: white;
     padding: 60px;
     border-radius: 10px;
     text-align: center;
-    width: 100%; /* Asegurar que la superposición no ocupe todo el ancho */
+    width: 100%;
 }
 
 .overlay h1 {
@@ -261,10 +283,9 @@ body {
 }
 
 .main-content {
-    margin-top: 60px; /* Ajusta este valor según sea necesario */
+    margin-top: 60px;
 }
 
-/* Estilos para la sección de recomendaciones */
 .recommendations {
     margin-top: 20px;
 }
@@ -295,9 +316,9 @@ body {
 .recommendation .btn {
     font-size: 1.2rem;
     padding: 10px 20px;
+}
 
-
-    .card {
+.card {
     border: 1px solid #e0e0e0;
     border-radius: 10px;
     overflow: hidden;
@@ -322,17 +343,16 @@ body {
     color: #666;
 }
 
-.btn-dark {
-    background-color: #000;
-    color: #fff;
+.btn-warning {
+    background-color: #ff9800;
+    color: white;
     border: none;
 }
 
-.btn-dark:hover {
-    background-color: #333;
+.btn-warning:hover {
+    background-color: #e68900;
 }
 
-/* Estilos para la vista de actividades por categoría */
 .filter-sidebar {
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -386,7 +406,7 @@ body {
 }
 
 .badge-success {
-    background-color: #28a745;
+    background-color: #ff9800;
 }
 
 .badge-warning {
@@ -395,141 +415,11 @@ body {
 
 .badge-danger {
     background-color: #dc3545;
-}
-
-
-.filter-sidebar {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.filter-sidebar h4 {
-    margin-bottom: 20px;
-}
-
-.filter-sidebar label {
-    font-weight: bold;
-}
-
-.filter-sidebar .form-group {
-    margin-bottom: 15px;
-}
-
-.filter-sidebar .form-control {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.filter-sidebar .btn-primary {
-    width: 100%;
-    padding: 10px;
-}
-
-.card {
-    border-radius: 10px;
-    overflow: hidden;
-    transition: all 0.3s ease-in-out;
-}
-
-.card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
-}
-
-.card-body {
-    padding: 15px;
-}
-
-.card-footer {
-    background-color: #fff;
-    border-top: 0;
-    padding: 10px 15px;
-}
-
-.badge-success {
-    background-color: #28a745;
-}
-
-.badge-warning {
-    background-color: #ffc107;
-}
-
-.badge-danger {
-    background-color: #dc3545;
-}
-
-.hero {
-    position: relative;
-    height: 70vh;
-    background: url('{{ url_for('static', filename='img/image.jpg') }}') no-repeat center center/cover;
-}
-
-.hero .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.hero .overlay .search-box {
-    position: absolute;
-    bottom: -30px;
-    width: 100%;
 }
 
 .search-box .container {
     display: flex;
     justify-content: center;
-}
-
-.search-form {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 50px;
-    padding: 10px 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 80%; /* Ajusta el ancho según sea necesario */
-    max-width: 600px; /* Establece un ancho máximo para pantallas más grandes */
-}
-
-.search-form input {
-    border: none;
-    border-radius: 50px;
-    box-shadow: none;
-    flex-grow: 1;
-    background-color: rgba(255, 255, 255, 0.3); /* Ajusta la transparencia aquí */
-    color: white; /* Para que el texto sea visible sobre el fondo transparente */
-    padding: 10px 15px; /* Ajusta el relleno para mayor altura */
-    font-size: 1.2rem; /* Aumenta el tamaño de la fuente si es necesario */
-}
-
-.search-form button {
-    border-radius: 50px;
-    background-color: #28a745;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.search-form button:hover {
-    background-color: #218838;
 }
 
 .star-rating {
@@ -598,7 +488,6 @@ body {
     background-color: #0056b3;
 }
 
-
 .featured-banner {
     background: linear-gradient(to right, #00c6ff, #0072ff);
     color: white;
@@ -642,4 +531,136 @@ body {
 .jumbotron .lead {
     font-size: 1.5rem;
     color: white;
+}
+
+.option-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.option-btn {
+    padding: 10px 20px;
+    border-radius: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.option-btn:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.rounded-img {
+    border-radius: 15px;
+}
+
+.text-white-shadow {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.bg-light-blue {
+    background-color: #e0f7fa;
+}
+
+.text-light-blue {
+    color: #007bff;
+}
+
+.btn-outline-blue {
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.btn-outline-blue:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.rounded-pill {
+    border-radius: 50px;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.header .navbar-nav .nav-link {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    transition: color 0.3s;
+}
+
+.header .navbar-nav .nav-link:hover {
+    color: #ff9800;
+}
+
+.header .form-inline {
+    position: relative;
+    width: 100%;
+}
+
+
+.header .form-inline .btn:hover {
+    background-color: #e68900;
+}
+
+@media (max-width: 767px) {
+    .header .form-inline .form-control {
+        width: calc(100% - 60px);
+    }
+}
+
+
+.highlight-banner {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        overflow: hidden;
+        border-radius: 0.5rem;
+    }
+
+    .highlight-banner-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .highlight-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        text-align: center;
+    }
+
+    .card-footer span.badge {
+        margin-right: 10px;
+    }
+
+/* Aseguramos que el contenedor del chatbot esté en el nivel más alto */
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1500;
 }

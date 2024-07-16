@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Visitas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Reporte de Visitas</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Actividad</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for visita in visitas %}
+            <tr>
+                <td>{{ visita.actividad.nombre }}</td>
+                <td>{{ visita.usuario.nombre }}</td>
+                <td>{{ visita.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

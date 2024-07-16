@@ -98,12 +98,40 @@ class ActividadTuristica(db.Model):
     def __repr__(self):
         return f"<ImagenActividad {self.name}, Image Length: {len(self.data) if self.data else 0}>"
 
+class Evento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    descripcion = db.Column(db.Text, nullable=False)
+    fecha = db.Column(db.Date, nullable=False)
+    lugar = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+
+class VisitaEvento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+    evento_id = db.Column(db.Integer, db.ForeignKey('evento.id'), nullable=False)
+    fecha_registro = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    fecha_visita = db.Column(db.Date, nullable=False)
+    valoracion = db.Column(db.Integer, nullable=False)  # Valoración con estrellas
+    reseña = db.Column(db.Text, nullable=True)
+    fotos = db.relationship('FotoVisitaEvento', backref='visita_evento', lazy=True)
+
+class FotoVisitaEvento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    visita_evento_id = db.Column(db.Integer, db.ForeignKey('visita_evento.id'), nullable=False)
+    data = db.Column(db.LargeBinary, nullable=False)
+    mimetype = db.Column(db.String(120), nullable=False)
+    filename = db.Column(db.String(120), nullable=False)
+
+
 class ImagenActividad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     data = db.Column(db.LargeBinary, nullable=False)
     mimetype = db.Column(db.String(50), nullable=False)
     actividad_id = db.Column(db.Integer, db.ForeignKey('actividad_turistica.id'))
+    evento_id = db.Column(db.Integer, db.ForeignKey('evento.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -154,6 +182,7 @@ class Visita(db.Model):
     reseña = db.Column(db.Text, nullable=True)
     fotos = db.relationship('FotoVisita', backref='visita', lazy=True)
     actividad_turistica = db.relationship('ActividadTuristica', backref='visitas', lazy=True)  # Relación con ActividadTuristica
+    usuario = db.relationship('Usuario', backref='visitas')
 
     def __repr__(self):
         return f'<Visita {self.id} - User {self.user_id} - Actividad {self.actividad_id}>'

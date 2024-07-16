@@ -13,47 +13,167 @@
     </div>
 
     {% if not respuestas %}
-    <div class="">
-        <div class="card-header text-center">
-            <h2>Encuentra Tu Actividad Ideal</h2>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('main.recomendaciones') }}">
-                {{ form.hidden_tag() }}
-                <div class="form-group">
-                    {{ form.pregunta1.label(class="form-label font-weight-bold") }}
-                    {{ form.pregunta1(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.pregunta2.label(class="form-label font-weight-bold") }}
-                    {{ form.pregunta2(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.pregunta3.label(class="form-label font-weight-bold") }}
-                    {{ form.pregunta3(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.pregunta4.label(class="form-label font-weight-bold") }}
-                    {{ form.pregunta4(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.pregunta5.label(class="form-label font-weight-bold") }}
-                    {{ form.pregunta5(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.pregunta6.label(class="form-label font-weight-bold") }}
-                    {{ form.pregunta6(class="form-control") }}
-                </div>
-                <div class="form-group">
-                    {{ form.pregunta7.label(class="form-label font-weight-bold") }}
-                    {{ form.pregunta7(class="form-control") }}
-                </div>
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">Enviar</button>
-                </div>
-            </form>
-        </div>
+
+    <div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2>Encuentra Tu Actividad Ideal</h2>
+        <p>Selecciona tus preferencias</p>
     </div>
+    <form method="POST" action="{{ url_for('main.recomendaciones') }}">
+        {{ form.hidden_tag() }}
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                {% for field, errors in form.errors.items() %}
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <div class="row">
+            <!-- Pregunta 1 -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-icons mr-2"></i>
+                        {{ form.pregunta1.label(class="form-label font-weight-bold mb-0") }}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% for choice in form.pregunta1 %}
+                            <div class="custom-control custom-radio custom-control-inline">
+                                {{ choice(class="custom-control-input") }}
+                                <label class="custom-control-label btn btn-outline-primary m-2 d-flex align-items-center" for="{{ choice.id }}">
+                                    <i class="fas fa-icons mr-2"></i> {{ choice.label.text }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Pregunta 4 -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-clock mr-2"></i>
+                        {{ form.pregunta4.label(class="form-label font-weight-bold mb-0") }}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% for choice in form.pregunta4 %}
+                            <div class="custom-control custom-radio custom-control-inline">
+                                {{ choice(class="custom-control-input") }}
+                                <label class="custom-control-label btn btn-outline-primary m-2 d-flex align-items-center" for="{{ choice.id }}">
+                                    <i class="fas fa-clock mr-2"></i> {{ choice.label.text }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Pregunta 3 -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-heartbeat mr-2"></i>
+                        {{ form.pregunta3.label(class="form-label font-weight-bold mb-0") }}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% for choice in form.pregunta3 %}
+                            <div class="custom-control custom-radio custom-control-inline">
+                                {{ choice(class="custom-control-input") }}
+                                <label class="custom-control-label btn btn-outline-primary m-2 d-flex align-items-center" for="{{ choice.id }}">
+                                    <i class="fas fa-heartbeat mr-2"></i> {{ choice.label.text }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Pregunta 2 -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
+                        {{ form.pregunta2.label(class="form-label font-weight-bold mb-0") }}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% for choice in form.pregunta2 %}
+                            <div class="custom-control custom-radio custom-control-inline">
+                                {{ choice(class="custom-control-input") }}
+                                <label class="custom-control-label btn btn-outline-primary m-2 d-flex align-items-center" for="{{ choice.id }}">
+                                    <i class="fas fa-tachometer-alt mr-2"></i> {{ choice.label.text }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Pregunta 5 -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-user-tie mr-2"></i>
+                        {{ form.pregunta5.label(class="form-label font-weight-bold mb-0") }}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% for choice in form.pregunta5 %}
+                            <div class="custom-control custom-radio custom-control-inline">
+                                {{ choice(class="custom-control-input") }}
+                                <label class="custom-control-label btn btn-outline-primary m-2 d-flex align-items-center" for="{{ choice.id }}">
+                                    <i class="fas fa-user-tie mr-2"></i> {{ choice.label.text }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Pregunta 6 -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        {{ form.pregunta6.label(class="form-label font-weight-bold mb-0") }}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% for choice in form.pregunta6 %}
+                            <div class="custom-control custom-radio custom-control-inline">
+                                {{ choice(class="custom-control-input") }}
+                                <label class="custom-control-label btn btn-outline-primary m-2 d-flex align-items-center" for="{{ choice.id }}">
+                                    <i class="fas fa-calendar-alt mr-2"></i> {{ choice.label.text }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <!-- Pregunta 7 -->
+            <div class="col-md-6 mb-4">
+                <div class="card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-dollar-sign mr-2"></i>
+                        {{ form.pregunta7.label(class="form-label font-weight-bold mb-0") }}
+                    </div>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        {% for choice in form.pregunta7 %}
+                            <div class="custom-control custom-radio custom-control-inline">
+                                {{ choice(class="custom-control-input") }}
+                                <label class="custom-control-label btn btn-outline-primary m-2 d-flex align-items-center" for="{{ choice.id }}">
+                                    <i class="fas fa-dollar-sign mr-2"></i> {{ choice.label.text }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Enviar</button>
+        </div>
+    </form>
+</div>
+
+
     {% else %}
     {% if recomendaciones %}
     <div class="row" id="actividades-container">
@@ -65,7 +185,7 @@
                     <h5 class="card-title">{{ actividad.nombre }}</h5>
                     <p class="card-text">{{ actividad.descripcion[:100] }}...</p>
                     <div class="mt-auto">
-                        <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-primary btn-sm">Ver más</a>
+                        <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-warning btn-sm">Ver más</a>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -83,38 +203,39 @@
     {% endif %}
     {% endif %}
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const radioButtons = document.querySelectorAll('.custom-control-input');
 
+    radioButtons.forEach(button => {
+        button.addEventListener('change', function () {
+            const label = this.nextElementSibling;
+            const allLabels = this.closest('.d-flex').querySelectorAll('.custom-control-label');
+
+            // Desactivar todos los labels de la misma pregunta
+            allLabels.forEach(lbl => lbl.classList.remove('active'));
+
+            // Activar el label seleccionado
+            if (this.checked) {
+                label.classList.add('active');
+            }
+        });
+    });
+});
+
+</script>
 <style>
-    .highlight-banner {
-        position: relative;
-        width: 100%;
-        height: 400px;
-        overflow: hidden;
-        border-radius: 0.5rem;
-    }
+    .custom-control-label {
+    padding: 10px 20px;
+    border-radius: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
 
-    .highlight-banner-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-size: cover;
-        background-position: center;
-    }
+.custom-control-label.active {
+    background-color: #007bff;
+    color: #fff;
+}
 
-    .highlight-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        text-align: center;
-    }
-
-    .card-footer span.badge {
-        margin-right: 10px;
-    }
 </style>
+
 {% endblock %}

@@ -3,21 +3,22 @@
 {% block title %}Detalles de la Actividad{% endblock %}
 
 {% block content %}
+<br>
 <div class="container mt-5">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-lg-7">
             <!-- Carousel para imágenes de la actividad -->
             {% if actividad.imagenes %}
-                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                <div id="carouselExampleIndicators" class="carousel slide shadow-sm rounded-lg overflow-hidden" data-ride="carousel">
                     <ol class="carousel-indicators">
                         {% for imagen in actividad.imagenes %}
                             <li data-target="#carouselExampleIndicators" data-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}"></li>
                         {% endfor %}
                     </ol>
-                    <div class="carousel-inner rounded-lg shadow-sm">
+                    <div class="carousel-inner">
                         {% for imagen in actividad.imagenes %}
                             <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                <img src="{{ url_for('main.get_actividad_image', id=imagen.id) }}" class="d-block w-100 rounded-lg object-cover" alt="Imagen de {{ actividad.nombre }}">
+                                <img src="{{ url_for('main.get_actividad_image', id=imagen.id) }}" class="d-block w-100 object-cover" alt="Imagen de {{ actividad.nombre }}">
                             </div>
                         {% endfor %}
                     </div>
@@ -31,37 +32,29 @@
                     </a>
                 </div>
             {% else %}
-                <img src="https://via.placeholder.com/800x400" class="img-fluid rounded-lg object-cover shadow-sm" alt="Sin imagen disponible">
+                <img src="https://via.placeholder.com/800x400" class="img-fluid rounded-lg shadow-sm object-cover" alt="Sin imagen disponible">
             {% endif %}
         </div>
-        <div class="col-md-4">
-            <h1 class="display-4">{{ actividad.nombre }}</h1>
-            <p class="lead">Desde ${{ actividad.precio_referencial }}</p>
-            <p>{{ actividad.descripcion }}</p>
-            <div class="d-flex flex-column">
-                <div class="d-flex flex-row mb-2">
-                    <span class="font-weight-bold">Tipo de Viaje:</span>
-                    <span class="ml-2">{{ actividad.categoria.nombre }}</span>
-                </div>
-                <div class="d-flex flex-row mb-2">
-                    <span class="font-weight-bold">Nivel de Dificultad:</span>
-                    <span class="ml-2">{{ actividad.nivel_dificultad }}</span>
-                </div>
-                <div class="d-flex flex-row mb-2">
-                    <span class="font-weight-bold">Época Recomendada:</span>
-                    <span class="ml-2">{{ actividad.epoca_recomendada }}</span>
-                </div>
-                <div class="d-flex flex-row mb-2">
-                    <span class="font-weight-bold">Requiere Guía:</span>
-                    <span class="ml-2">{{ actividad.requerimiento_guia }}</span>
+        <div class="col-lg-5">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h1 class="display-4 font-weight-bold">{{ actividad.nombre }}</h1>
+                    <p class="lead text-muted">Desde ${{ actividad.precio_referencial }}</p>
+                    <p class="text-muted">{{ actividad.descripcion }}</p>
+                    <ul class="list-unstyled mt-4">
+                        <li class="mb-2"><strong>Tipo de Viaje:</strong> {{ actividad.categoria.nombre }}</li>
+                        <li class="mb-2"><strong>Nivel de Dificultad:</strong> {{ actividad.nivel_dificultad }}</li>
+                        <li class="mb-2"><strong>Época Recomendada:</strong> {{ actividad.epoca_recomendada }}</li>
+                        <li class="mb-2"><strong>Requiere Guía:</strong> {{ actividad.requerimiento_guia }}</li>
+                    </ul>
+                    {% if current_user.is_authenticated %}
+                        <!-- Botón para abrir el modal -->
+                        <button type="button" class="btn btn-warning btn-lg btn-block mt-4" data-toggle="modal" data-target="#registerVisitModal" data-actividad-id="{{ actividad.id }}" data-actividad-nombre="{{ actividad.nombre }}">Registrar visita</button>
+                    {% else %}
+                        <a href="{{ url_for('main.login') }}" class="btn btn-warning btn-lg btn-block mt-4">Iniciar sesión para registrar visita</a>
+                    {% endif %}
                 </div>
             </div>
-            {% if current_user.is_authenticated %}
-                <!-- Botón para abrir el modal -->
-                <button type="button" class="btn btn-primary btn-lg btn-block mt-3" data-toggle="modal" data-target="#registerVisitModal" data-actividad-id="{{ actividad.id }}" data-actividad-nombre="{{ actividad.nombre }}">Registrar visita</button>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg btn-block mt-3">Iniciar sesión para registrar visita</a>
-            {% endif %}
         </div>
     </div>
 
@@ -89,9 +82,9 @@
             </ul>
             <div class="tab-content bg-light p-4 rounded-lg shadow-sm" id="myTabContent">
                 <div class="tab-pane fade show active" id="descripcion" role="tabpanel" aria-labelledby="descripcion-tab">
-                    <p><strong>Nivel fisico requerido:</strong> {{ actividad.nivel_fisico_requerido }}</p>
+                    <p><strong>Nivel físico requerido:</strong> {{ actividad.nivel_fisico_requerido }}</p>
                     <p><strong>Duración:</strong> {{ actividad.tiempo_promedio_duracion }}</p>
-                    <p><strong>Temperatura:</strong> {{ actividad.temperatura_minima}} ºC - {{ actividad.temperatura_maxima}} ºC</p>
+                    <p><strong>Temperatura:</strong> {{ actividad.temperatura_minima }} ºC - {{ actividad.temperatura_maxima }} ºC</p>
                 </div>
                 <div class="tab-pane fade" id="itinerario" role="tabpanel" aria-labelledby="itinerario-tab">
                     <h3>Itinerario de la Actividad</h3>
@@ -175,53 +168,108 @@
             </div>
         </div>
     </div>
+
+<!-- Sección de reseñas -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="mb-4">Reseñas</h2>
+        {% if visitas %}
+            <div id="reviewsCarousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {% for i in range(0, visitas|length, 3) %}
+                        <div class="carousel-item {% if i == 0 %}active{% endif %}">
+                            <div class="row">
+                                {% for visita in visitas[i:i+3] %}
+                                    <div class="col-md-4">
+                                        <div class="card shadow-sm rounded-lg h-100">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="rounded-circle mr-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: #f0f0f0;">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="mb-0">{{ visita.usuario.nombre }}</h5>
+                                                        <small class="text-muted">{{ visita.fecha_visita.strftime('%d %b, %Y') }}</small>
+                                                    </div>
+                                                </div>
+                                                <div class="static-star-rating d-flex mb-3">
+                                                    {% for star in range(1, 6) %}
+                                                        <label class="star {{ 'checked' if star <= visita.valoracion else '' }}">&#9733;</label>
+                                                    {% endfor %}
+                                                </div>
+                                                <p class="mb-0">{{ visita.reseña or "Sin comentarios" }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <a class="carousel-control-prev" href="#reviewsCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#reviewsCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        {% else %}
+            <p>No hay reseñas disponibles.</p>
+        {% endif %}
+    </div>
 </div>
 
 <!-- Modal para registrar visita -->
 <div class="modal fade" id="registerVisitModal" tabindex="-1" role="dialog" aria-labelledby="registerVisitModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <form method="post" action="{{ url_for('main.ver_actividad', id=actividad.id) }}" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
-                <div class="modal-header">
+                <div class="modal-header bg-warning text-white">
                     <h5 class="modal-title" id="registerVisitModalLabel">Registrar Visita</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group d-none">
-                        <label for="actividadNombre">Actividad</label>
-                        <input type="text" id="actividadNombre" class="form-control" value="{{ actividad.nombre }}" readonly>
-                        {{ form.actividad_id(class="form-control", style="display: none;") }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group d-none">
+                                <label for="actividadNombre" class="font-weight-bold">Actividad</label>
+                                <input type="text" id="actividadNombre" class="form-control" value="{{ actividad.nombre }}" readonly>
+                                {{ form.actividad_id(class="form-control", style="display: none;") }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.fecha_visita.label(class="font-weight-bold") }}
+                                {{ form.fecha_visita(class="form-control", max=date.today().isoformat()) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.valoracion.label(class="font-weight-bold") }}
+                                <div class="star-rating d-flex justify-content-center align-items-center">
+                                    {% for i in range(5, 0, -1) %}
+                                        <input type="radio" id="star{{ i }}" name="valoracion" value="{{ i }}" {% if form.valoracion.data == i %}checked{% endif %}/>
+                                        <label for="star{{ i }}" title="{{ i }} estrellas"></label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        {{ form.fecha_visita.label }} {{ form.fecha_visita(class="form-control", max=date.today().isoformat()) }}
+                        {{ form.reseña.label(class="font-weight-bold") }}
+                        {{ form.reseña(class="form-control") }}
                     </div>
                     <div class="form-group">
-                        {{ form.valoracion.label }}
-                        <div class="form-group">
-  {{ form.valoracion.label }}
-  <div class="form-group m-6">
-    <div class="star-rating">
-      {% for i in range(5, 0, -1) %}
-        <input type="radio" id="star{{ i }}" name="valoracion" value="{{ i }}" {% if form.valoracion.data == i %}checked{% endif %}/>
-        <label for="star{{ i }}" title="{{ i }} estrellas"></label>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-                    </div>
-                    <div class="form-group">
-                        {{ form.reseña.label }} {{ form.reseña(class="form-control") }}
-                    </div>
-                    <div class="form-group">
-                        {{ form.fotos.label }} {{ form.fotos(class="form-control-file") }}
+                        {{ form.fotos.label(class="font-weight-bold") }}
+                        {{ form.fotos(type="file", class="form-control-file", id="customFile") }}
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Registrar Visita</button>
+                    <button type="submit" class="btn btn-warning">Registrar Visita</button>
                 </div>
             </form>
         </div>
@@ -241,11 +289,178 @@
     });
 </script>
 
-
-
 <style>
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    color: #333;
+}
+
+p, ul, li, a, button {
+    font-family: 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+.carousel-inner img {
+    height: 500px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.card-body h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.card-body p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.list-unstyled li {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.btn-warning {
+    background-color: #ffcc00;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    transition: background-color 0.3s;
+}
+
+.btn-warning:hover {
+    background-color: #e6b800;
+}
+
+.nav-tabs .nav-link {
+    font-size: 1.1rem;
+    color: #666;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 1rem 1.5rem;
+    transition: color 0.3s, border-bottom-color 0.3s;
+}
+
+.nav-tabs .nav-link.active {
+    color: #333;
+    border-bottom-color: #ffcc00;
+}
+
+.tab-content {
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.static-star-rating .star {
+    font-size: 1.5rem;
+    color: #ddd;
+}
+
+.static-star-rating .star.checked {
+    color: #ffcc00;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1);
+}
+
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #ffcc00;
+    color: #fff;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.modal-footer .btn {
+    border-radius: 50px;
+}
+
+.form-control, .form-control-file {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+    .modal-header {
+        background-color: #ffc107;
+        color: #fff;
+        border-bottom: 2px solid #e0a800;
+    }
+    .modal-content {
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .star-rating {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        direction: rtl;
+    }
+    .star-rating input[type="radio"] {
+        display: none;
+    }
+    .star-rating label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+        margin: 0 5px;
+    }
+    .star-rating label::before {
+        content: '★';
+    }
+    .star-rating input[type="radio"]:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #f7d106;
+    }
+    .star-rating input[type="radio"]:checked ~ label ~ label {
+        color: #ddd;
+    }
+    .modal-footer .btn {
+        min-width: 100px;
+    }
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .form-control, .form-control-file {
+        border-radius: 0.25rem;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
     .carousel-inner img {
-        height: 400px;
+        height: 500px;
+        object-fit: cover;
     }
     .tab-content {
         background-color: #f8f9fa;
@@ -272,64 +487,24 @@
     .custom-nav-tabs .nav-link {
         color: black !important;
     }
-    .star-rating {
-  display: inline-block;
-  font-size: 0;
-  position: relative;
-  direction: ltr;
-}
-
-.star-rating input[type="radio"] {
-  display: none;
-}
-
-.star-rating label {
-  color: #ddd;
-  font-size: 2rem;
-  padding: 0;
-  cursor: pointer;
-  display: inline-block;
-  transition: color 0.2s;
-}
-
-.star-rating label::before {
-  content: "★";
-}
-
-.star-rating input[type="radio"]:checked ~ label {
-  color: #f7d106;
-}
-
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-  color: #f7d106;
-}
-
-.star-rating input[type="radio"]:checked + label ~ label {
-  color: #ddd;
-}
-
-/* Add this to reverse the order of the labels */
-.star-rating label {
-  float: right;
-}
-
-.star-rating input[type="radio"]:checked ~ label {
-  color: #f7d106;
-}
-
-.star-rating input[type="radio"]:checked ~ label ~ label {
-  color: #ddd;
-}
-
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-  color: #f7d106;
-}
-
-.star-rating input[type="radio"]:checked + label ~ label {
-  color: #f7d106;
-}
-
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .card-body img {
+        width: 50px;
+        height: 200px;
+    }
+    .card-body .mb-0 {
+        flex-grow: 1;
+    }
+    .rounded-circle i {
+        font-size: 1.5rem;
+    }
 </style>
 {% endblock %}

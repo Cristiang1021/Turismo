@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mapa Interactivo</title>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mapa Interactivo de Actividades</h1>
+    <div id="map"></div>
+
+    <script>
+        var map = L.map('map').setView([0.327, -78.562], 13); // Coordenadas iniciales
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Agrega marcadores para las actividades
+        L.marker([0.327, -78.562]).addTo(map)
+            .bindPopup('<b>Actividad 1</b><br />Descripción de la actividad 1.')
+            .openPopup();
+    </script>
+</body>
+</html>

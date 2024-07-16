@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recomendaciones de Actividades</title>
+</head>
+<body>
+    <h1 style="color: green;">Recomendaciones de Actividades</h1>
+    <p>Te recomendamos las siguientes actividades:</p>
+    <ul>
+        {% for rec in recommendations %}
+        <li>
+            <h2>{{ rec.nombre }}</h2>
+            <p>{{ rec.descripcion }}</p>
+            <img src="{{ rec.imagen_url }}" alt="Imagen de {{ rec.nombre }}" style="width: 200px; height: auto;">
+        </li>
+        {% endfor %}
+    </ul>
+    <p>¡Esperamos que disfrutes tu visita!</p>
+</body>
+</html>

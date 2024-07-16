@@ -7,7 +7,9 @@ import requests
 from flask import Blueprint, render_template, flash, redirect, url_for, request, send_from_directory, jsonify, \
     send_file, make_response
 from flask_login import login_user, logout_user, current_user, login_required
+from flask_mail import Message
 from flask_wtf import csrf, CSRFProtect
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash
 
@@ -18,10 +20,12 @@ from io import BytesIO
 from werkzeug.utils import secure_filename
 
 from . import db
-from .email import send_reset_email
+from app import mail
+from .email import send_reset_email, send_recommendation_email
 from .forms import LoginForm, RegistrationForm, RecomendacionForm, \
     RegistroVisitaForm, EditarRespuestasForm, RequestResetForm, ResetPasswordForm
-from .models import Usuario, ActividadTuristica, Categoria, ImagenActividad, RespuestasFormulario, Visita, FotoVisita
+from .models import Usuario, ActividadTuristica, Categoria, ImagenActividad, RespuestasFormulario, Visita, FotoVisita, \
+    ActividadVista
 
 main_bp = Blueprint('main', __name__)
 openai.api_key = os.environ.get('OPENAI_API_KEY')
@@ -69,7 +73,7 @@ def obtener_recomendaciones(user_id):
     actividades_recomendadas = sorted(actividades, key=lambda actividad: calcular_similitud(actividad, respuestas),
                                       reverse=True)
 
-    return actividades_recomendadas[:5]  # Retornar las 5 actividades con mayor similitud
+    return actividades_recomendadas[:3]
 
 
 @main_bp.route('/')
@@ -321,7 +325,7 @@ def cambiar_contraseña():
 @main_bp.route('/actividad/<int:id>', methods=['GET', 'POST'])
 def ver_actividad(id):
     actividad = ActividadTuristica.query.get_or_404(id)
-    visitas = Visita.query.filter_by(actividad_id=id).all()
+    visitas = Visita.query.filter_by(actividad_id=id).order_by(Visita.valoracion.desc()).limit(6).all()
     fotos_visitas = FotoVisita.query.join(Visita).filter(Visita.actividad_id == id).all()
     form = RegistroVisitaForm()
     form.actividad_id.choices = [(actividad.id, actividad.nombre)]
@@ -352,9 +356,17 @@ def ver_actividad(id):
         flash('Debes iniciar sesión para registrar una visita', 'danger')
         return redirect(url_for('login'))
 
-    return render_template('ver_actividad.html', actividad=actividad, fotos_visitas=fotos_visitas, form=form, date=datetime.date)
+    # Manejar vistas
+    usuario_id = current_user.id if current_user.is_authenticated else 3
+    vista = ActividadVista.query.filter_by(usuario_id=usuario_id, actividad_id=id).first()
+    if vista:
+        vista.vistas += 1
+    else:
+        vista = ActividadVista(usuario_id=usuario_id, actividad_id=id, vistas=1)
+        db.session.add(vista)
+    db.session.commit()
 
-
+    return render_template('ver_actividad.html', actividad=actividad, fotos_visitas=fotos_visitas, form=form, date=datetime.date, visitas=visitas)
 
 @main_bp.route('/foto_visita/<int:id>')
 def get_foto_visita(id):
@@ -402,11 +414,16 @@ def preferencias():
 
     return render_template('preferencias.html', form=form, visitas=visitas)
 
+@main_bp.route('/mapa')
+def mapa():
+    return render_template('asistente/mapa.html')
+
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 
-# Función para extraer texto del PDF desde una ruta local
+# Función para extraer texto del PDF desde una URL
 def extract_text_from_pdf_url(pdf_url):
     response = requests.get(pdf_url)
     if response.status_code == 200:
@@ -423,13 +440,10 @@ def extract_text_from_pdf_url(pdf_url):
 
 pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
 pdf_text = extract_text_from_pdf_url(pdf_url)
-print(f"Extracted PDF text: {pdf_text[:20]}...")  # Imprimir los primeros 20 caracteres para depuración
 
-# <><><><><><><> ASISTENTE VIRTUAL <><><><><><><> #
 
 # Función para hacer consultas a gpt-3.5-turbo-16k
 def query_gpt4(question, context, max_context_length=2000):
-    # Limitar el tamaño del contexto
     if len(context) > max_context_length:
         context = context[:max_context_length]
     prompt = f"{context}\n\nQuestion: {question}\nAnswer:"
@@ -444,65 +458,305 @@ def query_gpt4(question, context, max_context_length=2000):
     )
     return response.choices[0].message["content"].strip()
 
-
 # Función para consultar actividades
-def consultar_actividades(categoria_nombre):
-    actividades = ActividadTuristica.query.join(Categoria).filter(Categoria.nombre == categoria_nombre).all()
-    if not actividades:
-        return jsonify({"fulfillmentText": f"No se encontraron actividades en la categoría {categoria_nombre}."})
+def consultar_actividades(categoria_nombre=None):
+    actividades_text = []
 
-    elementos = []
+    if categoria_nombre:
+        categoria = Categoria.query.filter_by(nombre=categoria_nombre).first()
+        if not categoria:
+            return [{
+                "type": "info",
+                "title": f"No se encontró la categoría {categoria_nombre}.",
+                "subtitle": ""
+            }]
+
+        actividades = ActividadTuristica.query.filter_by(categoria_id=categoria.id).all()
+    else:
+        # Obtener 2 o 3 actividades generales
+        actividades = ActividadTuristica.query.limit(1).all()
+
     for actividad in actividades:
-        imagen_url = None
-        if actividad.imagenes:
-            imagen_url = f"https://turismo-85gv.onrender.com/imagen_actividad/{actividad.imagenes[0].id}"
-
-        elementos.append([
+        actividad_info = [
             {
                 "type": "image",
-                "rawUrl": imagen_url if imagen_url else "URL DE UNA IMAGEN POR DEFECTO",
-                "accessibilityText": actividad.nombre
+                "rawUrl": f"https://turismo.ngrok.app/imagen_actividad/{actividad.imagenes[0].id}" if actividad.imagenes else "https://example.com/default.jpg",
+                "accessibilityText": f"Imagen de la actividad {actividad.nombre}"
             },
             {
                 "type": "info",
                 "title": actividad.nombre,
-                "subtitle": actividad.descripcion_equipamiento,
-                "actionLink": f"https://turismo-85gv.onrender.com/actividades/{actividad.id}"
+                "subtitle": actividad.descripcion,
+                "actionLink": f"https://turismo.ngrok.app/actividad/{actividad.id}"
+            }
+        ]
+        actividades_text.append(actividad_info)
+
+    if not categoria_nombre:
+        actividades_text.append([
+            {
+                "type": "info",
+                "title": "Consulta todas nuestras actividades aquí",
+                "actionLink": "https://turismo.ngrok.app/actividades"
             }
         ])
 
-    respuesta = {
-        "fulfillmentMessages": [
-            {
-                "payload": {
-                    "richContent": elementos
-                }
-            }
-        ]
-    }
-
-    return jsonify(respuesta)
+    return actividades_text
 
 
-# Función para manejar las acciones del webhook
-def handle_webhook_action(action, query_result):
-    if action == 'consultar_actividades':
-        categoria_nombre = query_result.get('parameters', {}).get('categoria', '').capitalize()
-        return consultar_actividades(categoria_nombre)
-    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+def send_recommendation_email(email, recommendations, days):
+    if not recommendations:
+        print("No recommendations found. Skipping email send.")
+        return
+
+    # Limitar las recomendaciones al número de días especificado
+    recommendations = recommendations[:days]
+
+    # Asegúrate de que las recomendaciones se pasen correctamente al template
+    formatted_recommendations = [
+        {
+            'nombre': r.nombre,
+            'descripcion': r.descripcion,
+            'imagen_url': f"https://turismo.ngrok.app/imagen_actividad/{r.imagenes[0].id}" if r.imagenes else "https://example.com/default.jpg"
+        }
+        for r in recommendations
+    ]
+
+    msg = Message('Recomendaciones de Actividades',
+                  sender='tessis.asesor@gmail.com',
+                  recipients=[email])
+    msg.html = render_template('emails/recommendation_email.html', recommendations=formatted_recommendations)
+    try:
+        mail.send(msg)
+        print("Correo enviado correctamente.")
+    except Exception as e:
+        print(f"Error al enviar el correo: {str(e)}")
 
 
-# Ruta para el webhook
+
+
+def obtener_actividades_mas_populares(n):
+    actividades = ActividadTuristica.query \
+        .join(ActividadVista) \
+        .group_by(ActividadTuristica.id) \
+        .order_by(db.func.count(ActividadVista.id).desc()) \
+        .limit(n) \
+        .all()
+    return actividades
+
+
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
-    query_result = req.get('queryResult', {})
-    action = query_result.get('action', None)
+    action = req.get('queryResult').get('action')
+    parameters = req.get('queryResult').get('parameters')
+    session = req.get('session')
 
-    if not action:
-        return jsonify({"fulfillmentText": "No se proporcionó ninguna acción en la solicitud."})
+    print("Received action: ", action)  # Añade este print para ver qué acción se está recibiendo
 
-    return handle_webhook_action(action, query_result)
+    if action == 'recomendaciones':
+        print("Handling 'recomendaciones' action")
+        response = {
+            "fulfillmentMessages": [
+                {
+                    "payload": {
+                        "richContent": [
+                            [
+                                {
+                                    "title": "¿Estás registrado?",
+                                    "subtitle": "Selecciona una opción para continuar.",
+                                    "type": "info"
+                                },
+                                {
+                                    "type": "chips",
+                                    "options": [
+                                        {
+                                            "text": "Sí"
+                                        },
+                                        {
+                                            "text": "No"
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    }
+                }
+            ]
+        }
+        return jsonify(response)
+
+    if action == 'usuario_registrado':
+        registrado = parameters.get('registrado')
+        if registrado.lower() == 'sí':
+            response = {
+                "fulfillmentText": "Por favor, proporciona tu correo electrónico."
+            }
+            return jsonify(response)
+        else:
+            response = {
+                "fulfillmentMessages": [
+                    {
+                        "payload": {
+                            "richContent": [
+                                [
+                                    {
+                                        "title": "Para darte recomendaciones personalizadas, por favor regístrate en nuestro sitio web.",
+                                        "type": "info"
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ]
+            }
+            return jsonify(response)
+
+    if action == 'capturar_correo':
+        email = parameters.get('email')
+        usuario = Usuario.query.filter_by(correo=email).first()
+        if usuario:
+            recomendaciones = obtener_recomendaciones(usuario.id)
+            if recomendaciones:
+                fulfillment_messages = [
+                    {
+                        "payload": {
+                            "richContent": [
+                                [
+                                    {
+                                        "type": "image",
+                                        "rawUrl": f"https://turismo.ngrok.app/imagen_actividad/{actividad.imagenes[0].id}" if actividad.imagenes else "https://example.com/default.jpg",
+                                        "accessibilityText": f"Imagen de la actividad {actividad.nombre}"
+                                    },
+                                    {
+                                        "type": "info",
+                                        "title": f"Recomendación {i + 1}: {actividad.nombre}",
+                                        "subtitle": actividad.descripcion,
+                                        "actionLink": f"https://turismo.ngrok.app/actividad/{actividad.id}"
+                                    }
+                                ]
+                            ]
+                        }
+                    } for i, actividad in enumerate(recomendaciones)
+                ]
+                return jsonify({"fulfillmentMessages": fulfillment_messages})
+            else:
+                response = {
+                    "fulfillmentMessages": [
+                        {
+                            "payload": {
+                                "richContent": [
+                                    [
+                                        {
+                                            "type": "info",
+                                            "title": "Todavía no has seleccionado tus preferencias.",
+                                            "subtitle": "¿Quieres hacerlo ahora?"
+                                        },
+                                        {
+                                            "type": "button",
+                                            "icon": {
+                                                "type": "chevron_right",
+                                                "color": "#FF9800"
+                                            },
+                                            "text": "Ir a Recomendaciones",
+                                            "link": "https://turismo.ngrok.app/recomendaciones"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    ],
+                    "outputContexts": [
+                        {
+                            "name": f"{session}/contexts/awaiting_preferences",
+                            "lifespanCount": 5,
+                            "parameters": {
+                                "email": email
+                            }
+                        }
+                    ]
+                }
+                return jsonify(response)
+        else:
+            response = {
+                "fulfillmentMessages": [
+                    {
+                        "payload": {
+                            "richContent": [
+                                [
+                                    {
+                                        "type": "info",
+                                        "title": "No se encontró un usuario con ese correo.",
+                                        "subtitle": "Por favor, regístrate en nuestro sitio web."
+                                    },
+                                    {
+                                        "type": "button",
+                                        "icon": {
+                                            "type": "chevron_right",
+                                            "color": "#FF9800"
+                                        },
+                                        "text": "Registrar",
+                                        "link": "https://turismo.ngrok.app/register"
+                                    }
+                                ]
+                            ]
+                        }
+                    }
+                ]
+            }
+            return jsonify(response)
+
+    if action == 'consultar_actividades':
+        categoria_nombre = parameters.get('categoria', None)
+        actividades_text = consultar_actividades(categoria_nombre)
+        return jsonify({
+            "fulfillmentMessages": [
+                {
+                    "payload": {
+                        "richContent": actividades_text
+                    }
+                }
+            ]
+        })
+
+    if action == 'ver_actividades':  # Nuevo manejador para 'ver_actividades'
+        actividades_text = consultar_actividades()  # Puedes ajustar si necesitas pasar parámetros
+        return jsonify({
+            "fulfillmentMessages": [
+                {
+                    "payload": {
+                        "richContent": actividades_text
+                    }
+                }
+            ]
+        })
+
+    if action == 'dar_consejos':
+        actividad_nombre = parameters.get('actividad_nombre')
+        actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
+        if actividad:
+            consejos = f"Para participar en {actividad.nombre}, se recomienda {actividad.requerimiento_guia}. Realizar durante {actividad.epoca_recomendada}, y el nivel de dificultad es {actividad.nivel_dificultad}."
+            response_text = consejos
+        else:
+            response_text = "No se encontró información sobre esa actividad."
+        return jsonify({"fulfillmentText": response_text})
+
+    return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+
+
+
+@main_bp.route('/check_user', methods=['GET'])
+def check_user():
+    if current_user.is_authenticated:
+        user_info = {
+            "user_id": current_user.id,
+            "user_name": current_user.nombre,
+            "user_email": current_user.correo
+        }
+        return jsonify(user_info), 200
+    else:
+        return jsonify({"error": "No user is currently logged in."}), 401
+
 
 def dar_consejos(actividad_nombre):
     actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
@@ -513,3 +767,4 @@ def dar_consejos(actividad_nombre):
     else:
         response_text = "No se encontró información sobre esa actividad."
     return jsonify({"fulfillmentText": response_text})
+

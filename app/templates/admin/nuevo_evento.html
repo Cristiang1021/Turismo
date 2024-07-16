@@ -1,0 +1,33 @@
+{% extends 'admin/base.html' %}
+{% block title %}{% if form.nombre.data %}Editar Evento{% else %}Crear Evento{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.nombre.data %}Editar{% else %}Crear{% endif %} Evento</h2>
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.nombre.label }}
+            {{ form.nombre(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.descripcion.label }}
+            {{ form.descripcion(class="form-control", rows=4) }}
+        </div>
+        <div class="form-group">
+            {{ form.fecha.label }}
+            {{ form.fecha(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.lugar.label }}
+            {{ form.lugar(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.imagenes.label }}
+            {{ form.imagenes(class="form-control-file") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+    <a href="{{ url_for('admin.eventos') }}" class="btn btn-secondary mt-2">Volver a eventos</a>
+</div>
+{% endblock %}

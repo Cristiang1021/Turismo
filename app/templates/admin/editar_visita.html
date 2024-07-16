@@ -1,0 +1,77 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Editar Visita</h2>
+    <form action="{{ url_for('admin.editar_visita', visita_id=visita.id) }}" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        <div class="images-section mt-4">
+            <h3>Imágenes Actuales</h3>
+            <div class="image-gallery">
+                {% for foto in visita.fotos %}
+                <div class="image-container" style="position: relative; display: inline-block;">
+                    <img src="{{ url_for('admin.get_foto_visita', id=foto.id) }}" alt="Imagen de Visita" style="max-width: 100px;">
+                    <button class="delete-image-btn" style="position: absolute; top: 10px; right: 10px;" data-image-id="{{ foto.id }}">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <input type="checkbox" name="delete_images" value="{{ foto.id }}" style="display: none;">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="new-images-section mt-4">
+            <h3>Subir Nuevas Imágenes</h3>
+            <input type="file" name="nuevas_fotos" class="form-control-file" multiple accept="image/*">
+        </div>
+
+        <div class="form-group text-right mt-3">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{{ url_for('admin.listar_visitas') }}" class="btn btn-secondary btn-danger">Cancelar</a>
+        </div>
+
+        <h2>Datos de la Visita</h2>
+        <div class="form-group">
+            <label for="actividad_nombre">Nombre de la Actividad</label>
+            <input type="text" id="actividad_nombre" class="form-control" value="{{ visita.actividad_turistica.nombre }}" readonly>
+        </div>
+
+        <div class="form-group">
+            {{ form.fecha_visita.label(class="form-label") }}
+            {{ form.fecha_visita(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.valoracion.label(class="form-label") }}
+            {{ form.valoracion(class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.reseña.label(class="form-label") }}
+            {{ form.reseña(class="form-control") }}
+        </div>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{{ url_for('admin.listar_visitas') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-image-btn').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
+                if (confirmDelete) {
+                    const checkbox = this.nextElementSibling;
+                    checkbox.checked = true;
+                    this.parentElement.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

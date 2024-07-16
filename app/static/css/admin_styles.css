@@ -1,120 +1,156 @@
-/* admin_styles.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
 #wrapper {
+    display: flex;
+    min-height: 100vh;
     overflow-x: hidden;
 }
 
 #sidebar-wrapper {
     min-height: 100vh;
-    margin-left: -15rem;
-    transition: margin .25s ease-out;
+    width: 250px;
+    background-color: #343a40;
+    transition: all 0.3s;
 }
 
 #wrapper.toggled #sidebar-wrapper {
-    margin-left: 0;
-}
-#sidebar-heading{
-    color: green;
-}
-/* Añade más estilos personalizados según sea necesario */
-#page-content-wrapper{
-    margin-left: 3%
+    width: 70px;
 }
 
-/* Estilos personalizados */
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
+#sidebar-wrapper .sidebar-heading {
+    padding: 1rem;
+    font-size: 1.2rem;
+    color: #fff;
+    text-align: center;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    flex-direction: column;
+}
+
+#sidebar-wrapper .list-group {
+    width: 100%;
+}
+
+#sidebar-wrapper .list-group-item {
+    border: none;
+    padding: 15px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #343a40;
+}
+
+#sidebar-wrapper .list-group-item:hover {
+    background-color: #495057;
+}
+
+#sidebar-wrapper .list-group-item.active {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+#sidebar-wrapper .list-group-item i {
+    margin-right: 10px;
+}
+
+#page-content-wrapper {
+    flex: 1;
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+#wrapper.toggled #page-content-wrapper {
+    margin-left: 70px;
+}
+
+@media (max-width: 768px) {
+    #sidebar-wrapper {
+        width: 70px;
+    }
+
+    #page-content-wrapper {
+        margin-left: 70px;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        width: 250px;
+    }
+
+    #wrapper.toggled #page-content-wrapper {
+        margin-left: 250px;
+    }
+}
+
+.sidebar-heading img {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+
+.list-group-item .menu-text {
+    display: inline;
+}
+
+#wrapper.toggled .list-group-item .menu-text {
+    display: none;
+}
+
+#wrapper.toggled .list-group-item i {
+    margin-right: 0;
+}
+
+#wrapper.toggled .sidebar-heading {
+    justify-content: center;
+}
+
+#wrapper.toggled .sidebar-heading img {
+    margin-bottom: 0;
+}
+
+.list-group-item i {
+    transition: all 0.3s;
+}
+
+#wrapper.toggled .list-group-item i {
+    margin-right: 0;
+}
+
+.list-group-item {
+    display: flex;
     align-items: center;
 }
 
-.card-img-top {
-    object-fit: cover;
-}
-
-.toast-container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1050;
+.list-group-item i {
+    width: 25px;
+    text-align: center;
 }
 
 .toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1050;
-    min-width: 300px;
-    border-radius: 10px;
-}
-
-.toast-header {
-    border-bottom: none;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-.toast-body {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-
-.toast .toast-body {
-    font-size: 16px;
-}
-
-.toast .btn-close {
-    filter: invert(1);
-}
-
-
-.form-data-section {
-    padding-top: 20px;
+    max-width: 350px;
+    margin: 0 auto;
 }
 
 .image-gallery {
     display: flex;
     flex-wrap: wrap;
-    justify-content: start;
     gap: 10px;
-    max-width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc; /* Opcional, añade un borde al contenedor de imágenes */
-    overflow: auto; /* Si hay muchas imágenes, permite desplazamiento horizontal */
+}
+
+.image-container {
+    position: relative;
+    margin: 10px;
+    display: inline-block;
 }
 
 .image-container img {
     width: 100%;
-    height: 150px; /* Ajusta la altura deseada */
-    object-fit: contain; /* Cambia aquí para asegurar que la imagen se vea completa */
-    background: #f8f9fa; /* Fondo para llenar el espacio vacío si la imagen no cubre todo */
-}
-
-
-.image-container img {
-    width: 100%;
-    height: 150px; /* Ajusta la altura deseada */
-    object-fit: cover; /* Asegura que las imágenes cubran completamente el área sin distorsionarse */
-}
-
-.form-check {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    background-color: rgba(255, 255, 255, 0.8); /* Fondo semi-transparente para las etiquetas sobre la imagen */
-    padding: 5px;
-    border-radius: 5px;
+    height: 150px;
+    object-fit: cover;
+    background: #f8f9fa;
 }
 
 .delete-image-btn {
@@ -123,62 +159,15 @@
     left: 10px;
     border: none;
     background: transparent;
-    color: red; /* Ícono rojo para la acción 'danger' */
+    color: red;
     cursor: pointer;
-    font-size: 24px; /* Tamaño del ícono */
-    opacity: 0.7; /* Sutil transparencia para diseño menos intrusivo */
-    transition: color 0.3s, transform 0.3s; /* Suave transición para interacciones */
+    font-size: 24px;
+    opacity: 0.7;
+    transition: color 0.3s, transform 0.3s;
 }
 
 .delete-image-btn:hover, .delete-image-btn:focus {
-    color: darkred; /* Color más oscuro al pasar el mouse o enfocar para resaltar interactividad */
-    transform: scale(1.1); /* Ligeramente más grande al interactuar */
+    color: darkred;
+    transform: scale(1.1);
     opacity: 1;
-}
-
-.image-container {
-    position: relative;
-    margin: 10px;
-    display: inline-block; /* Alineación adecuada y manejo del espacio */
-}
-
-.image-container img {
-    width: 100%;
-    height: 150px;
-    object-fit: contain;
-    background: #f8f9fa;
-}
-
-.hidden {
-    display: none;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-check {
-    margin-bottom: 1rem;
-}
-
-.form-check-label {
-    margin-left: 0.5rem;
-}
-
-#edit-category-form .form-check {
-    display: flex;
-    align-items: center;
-}
-
-#edit-category-form .form-check input[type="checkbox"] {
-    margin-left: 0;
-}
-
-.btn {
-    margin-top: 1rem;
 }

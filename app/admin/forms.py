@@ -1,9 +1,9 @@
-from wtforms import PasswordField, HiddenField
+from wtforms import PasswordField, HiddenField, DateField, MultipleFileField, IntegerField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileRequired
 from wtforms import PasswordField, HiddenField
 from wtforms import StringField, TextAreaField, BooleanField, SubmitField, SelectField, FileField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 from wtforms.validators import Email, EqualTo, Length, ValidationError, Regexp, Optional
 
 from app.models import Categoria
@@ -102,3 +102,26 @@ class ActividadTuristicaForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(ActividadTuristicaForm, self).__init__(*args, **kwargs)
         self.categoria_id.choices = [(c.id, c.nombre) for c in Categoria.query.all()]
+
+class EventoForm(FlaskForm):
+    nombre = StringField('Nombre', validators=[DataRequired()])
+    descripcion = TextAreaField('Descripción', validators=[DataRequired()])
+    fecha = DateField('Fecha', format='%Y-%m-%d', validators=[DataRequired()])
+    lugar = StringField('Lugar', validators=[DataRequired()])
+    imagenes = MultipleFileField('Imágenes')
+    submit = SubmitField('Guardar')
+
+class RegistroVisitaEventoForm(FlaskForm):
+    evento_id = SelectField('Evento', coerce=int)
+    fecha_visita = DateField('Fecha de Visita', validators=[DataRequired()])
+    valoracion = SelectField('Valoración', choices=[(i, str(i)) for i in range(1, 6)], validators=[DataRequired()])
+    reseña = TextAreaField('Reseña')
+    fotos = MultipleFileField('Fotos')
+    submit = SubmitField('Registrar Visita')
+
+class EditarVisitaForm(FlaskForm):
+    fecha_visita = DateField('Fecha de Visita', validators=[DataRequired()])
+    valoracion = IntegerField('Valoración', validators=[DataRequired(), NumberRange(min=1, max=5)])
+    reseña = TextAreaField('Reseña', validators=[Optional(), Length(max=500)])
+    nuevas_fotos = MultipleFileField('Subir Nuevas Imágenes', validators=[Optional()])
+    submit = SubmitField('Guardar Cambios')

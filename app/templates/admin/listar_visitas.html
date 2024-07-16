@@ -1,0 +1,58 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Listado de Visitas</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Imágenes</th>
+                <th>Usuario</th>
+                <th>Actividad</th>
+                <th>Fecha de Visita</th>
+                <th>Valoración</th>
+                <th>Reseña</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for visita in visitas.items %}
+            <tr>
+                <td>
+                    {% if visita.fotos %}
+                    <img src="{{ url_for('admin.get_foto_visita', id=visita.fotos[0].id) }}" alt="Imagen de Visita" class="img-thumbnail" style="max-width: 100px;">
+                    {% else %}
+                     <img src="https://via.placeholder.com/60" alt="No image available" style="height: 60px; width: auto;">
+                    {% endif %}
+                </td>
+                <td>{{ visita.usuario.correo }}</td>
+                <td>{{ visita.actividad_turistica.nombre }}</td>
+                <td>{{ visita.fecha_visita }}</td>
+                <td>{{ visita.valoracion }}</td>
+                <td>{{ visita.reseña }}</td>
+                <td>
+                    <a href="{{ url_for('admin.editar_visita', visita_id=visita.id) }}" class="btn btn-sm btn-info"><i class="fas fa-edit"></i> Editar</a>
+                    <form action="{{ url_for('admin.eliminar_visita', visita_id=visita.id) }}" method="post" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar esta visita?');"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {%- for page_num in visitas.iter_pages() %}
+            {% if visitas.page == page_num %}
+            <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+            {% elif page_num %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('admin.listar_visitas', page=page_num) }}">{{ page_num }}</a></li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+            {% endif %}
+            {%- endfor %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

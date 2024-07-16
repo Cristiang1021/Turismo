@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Actividades{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Reporte de Actividades</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for actividad in actividades %}
+            <tr>
+                <td>{{ actividad.nombre }}</td>
+                <td>{{ actividad.categoria.nombre }}</td>
+                <td>{{ actividad.descripcion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

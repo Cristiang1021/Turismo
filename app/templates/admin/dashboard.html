@@ -1,11 +1,120 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-<div class="pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Bienvenido al Panel de Administración</h1>
+<div class="container mt-4">
+    <h1>Dashboard</h1>
+    <div class="form-group text-right mt-3">
+        <a href="{{ url_for('admin.export_dashboard_pdf') }}" class="btn btn-primary">Descargar Dashboard en PDF</a>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Actividades</h5>
+                    <p class="card-text" id="total-actividades"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Usuarios</h5>
+                    <p class="card-text" id="total-usuarios"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Visitas</h5>
+                    <p class="card-text" id="total-visitas"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Visitas por Categoría</h3>
+            <div id="visitasPorCategoriaChart"></div>
+        </div>
+        <div class="col-md-6">
+            <h3>Actividades Más Visitadas</h3>
+            <div id="actividadesMasVisitadasChart"></div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Actividades Más Vistas</h3>
+            <div id="actividadesMasVistasChart"></div>
+        </div>
+        <div class="col-md-6">
+            <h3>Usuarios Registrados</h3>
+            <div id="usuariosRegistradosChart"></div>
+        </div>
+    </div>
 </div>
 
-<!-- Aquí puedes añadir el contenido de tu dashboard, como gráficos, tablas, etc. -->
-<!-- Asegúrate de que cada parte del contenido esté en su propia 'div' para una mejor estructura -->
-<h1>  </h1>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("/admin/dashboard_data")
+            .then(response => response.json())
+            .then(data => {
+                // Totales
+                document.getElementById('total-actividades').innerText = data.total_actividades;
+                document.getElementById('total-usuarios').innerText = data.total_usuarios;
+                document.getElementById('total-visitas').innerText = data.total_visitas;
+
+                // Visitas por Categoría (Bar Chart)
+                var visitasPorCategoriaData = [{
+                    x: data.visitas_por_categoria.map(row => row.nombre),
+                    y: data.visitas_por_categoria.map(row => row.count),
+                    type: 'bar'
+                }];
+                Plotly.newPlot('visitasPorCategoriaChart', visitasPorCategoriaData);
+
+                // Actividades Más Vistas (Pie Chart)
+                var actividadesMasVistasData = [{
+                    labels: data.actividades_mas_vistas.map(row => row.nombre),
+                    values: data.actividades_mas_vistas.map(row => row.count),
+                    type: 'pie'
+                }];
+                Plotly.newPlot('actividadesMasVistasChart', actividadesMasVistasData);
+
+                // Actividades Más Visitadas (Bar Chart)
+                var actividadesMasVisitadasData = [{
+                    x: data.actividades_mas_visitadas.map(row => row.nombre),
+                    y: data.actividades_mas_visitadas.map(row => row.count),
+                    type: 'bar'
+                }];
+                Plotly.newPlot('actividadesMasVisitadasChart', actividadesMasVisitadasData);
+
+                // Usuarios Registrados (Line Chart)
+                var usuariosRegistradosData = [{
+                    x: data.usuarios_registrados.map(row => row.fecha),
+                    y: data.usuarios_registrados.map(row => row.count),
+                    type: 'scatter',
+                    mode: 'lines+markers'
+                }];
+                Plotly.newPlot('usuariosRegistradosChart', usuariosRegistradosData);
+            });
+    });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+<script>
+    document.getElementById("download-pdf").addEventListener("click", function() {
+        html2canvas(document.querySelector(".container")).then(canvas => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save("dashboard.pdf");
+        });
+    });
+</script>
+
 {% endblock %}

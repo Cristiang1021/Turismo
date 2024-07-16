@@ -33,47 +33,21 @@
             <p>&copy; 2023 San Andrés. Todos los derechos reservados.</p>
         </div>
     </div>
-
-    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
-    <df-messenger
-        chat-icon="https:&#x2F;&#x2F;img.freepik.com&#x2F;foto-gratis&#x2F;ilustracion-3d-hombre-negocios-auriculares-sobre-fondo-borroso-concepto-empresarial_1142-51038.jpg?size=338&ampext=jpg&ampga=GA1.1.1788068356.1716508800&ampsemt=ais_user"
-        intent="WELCOME"
-        chat-title="ViajeroDigital"
-        agent-id="00015f6f-b220-4432-b810-9f4c38361e38"
-        language-code="es">
-    </df-messenger>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</footer>
 
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
         // Coordenadas de San Andrés, Guano, Chimborazo, Ecuador
-        var sanAndresCoords = [-1.664499, -78.654297];
-
+        var sanAndresCoords = [-1.589718, -78.701559];
         // Inicializa el mapa de Leaflet
         var map = L.map('map').setView(sanAndresCoords, 13);
-
         // Carga y muestra el mapa de OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-
         // Agrega un marcador en San Andrés, Guano, Chimborazo, Ecuador
         L.marker(sanAndresCoords).addTo(map)
             .bindPopup('San Andrés, Guano, Chimborazo, Ecuador')
             .openPopup();
     });
 </script>
-
-
-
-</footer>

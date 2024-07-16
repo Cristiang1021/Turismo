@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte de Usuarios{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Reporte de Usuarios</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Admin</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.correo }}</td>
+                <td>{{ usuario.es_admin }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
