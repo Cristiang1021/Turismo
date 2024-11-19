@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración</title>
-    <!-- Asegúrate de incluir Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            padding-top: 56px; /* Espacio para la barra de navegación superior */
+            padding-top: 56px;
         }
         .sidebar {
             min-width: 250px;
             max-width: 250px;
             min-height: 100vh;
+            display: none; /* Hide sidebar by default */
         }
         .sidebar-sticky {
             position: fixed;
@@ -21,37 +21,42 @@
             height: calc(100vh - 56px);
             padding-top: .5rem;
             overflow-x: hidden;
-            overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+            overflow-y: auto;
         }
         .sidebar .nav-link {
             font-weight: 500;
             color: var(--gray-dark);
         }
-        .sidebar .nav-link .feather {
-            margin-right: 4px;
-            color: var(--gray);
-        }
         .sidebar .nav-link.active {
             color: var(--primary);
         }
-        .sidebar .nav-link:hover .feather,
-        .sidebar .nav-link.active .feather {
-            color: inherit;
+        @media (min-width: 768px) {
+            .sidebar {
+                display: block; /* Show sidebar on larger screens */
+            }
+        }
+        .main-content {
+            padding: 1rem;
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a>
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('admin.logout') }}">Cerrar sesión</a>
-            </li>
-        </ul>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.logout') }}">Cerrar sesión</a>
+                </li>
+            </ul>
+        </div>
     </nav>
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <nav class="col-md-2 bg-light sidebar d-none d-md-block">
                 <div class="sidebar-sticky">
                     <ul class="nav flex-column">
                         <li class="nav-item">
@@ -60,31 +65,24 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                Usuarios
-                            </a>
+                            <a class="nav-link" href="#">Usuarios</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                Actividades
-                            </a>
+                            <a class="nav-link" href="#">Actividades</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin.logout') }}">
-                                Cerrar sesión
-                            </a>
+                            <a class="nav-link" href="{{ url_for('admin.logout') }}">Cerrar sesión</a>
                         </li>
                     </ul>
                 </div>
             </nav>
 
-            <!-- Aquí empieza el contenido de la página -->
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- Main content goes here -->
                 {% block content %}{% endblock %}
             </main>
         </div>
     </div>
-    <!-- Opcional: incluir Bootstrap JS y Popper.js para los componentes interactivos -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.7.12/umd.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

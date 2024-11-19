@@ -8,7 +8,9 @@ class Config(object):
 
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'default_secret_key'
     #SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:admin@localhost:5432/turismos'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_xc5q_user:hICCI36xWvs6i68mNbk7rt9xtTBeItfy@dpg-coptj3tjm4es73abgusg-a.ohio-postgres.render.com/turismo_xc5q'
+    #SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_xc5q_user:hICCI36xWvs6i68mNbk7rt9xtTBeItfy@dpg-coptj3tjm4es73abgusg-a.ohio-postgres.render.com/turismo_xc5q'
+    #SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_5sv2_user:hICCI36xWvs6i68mNbk7rt9xtTBeItfy@dpg-coptj3tjm4es73abgusg-a.ohio-postgres.render.com/turismo_5sv2'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_5sv2_user:ANuBosQ0IeLLErwydBz0JrtFL1ZpiOgL@dpg-csgetr5umphs73b4g8fg-a.ohio-postgres.render.com/turismo_5sv2'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'uploads')
@@ -22,6 +24,8 @@ class Config(object):
     MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL') == 'True'
     MAIL_USERNAME = os.environ.get('EMAIL_USER')
     MAIL_PASSWORD = os.environ.get('EMAIL_PASS')
+
+    GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 
 
 

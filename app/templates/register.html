@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
             background-color: #f8f9fa;
@@ -16,12 +15,12 @@
             position: relative;
         }
         .right-half {
-            width: 50%;
+            display: none;
             background: url('{{ url_for('static', filename='login_image.png') }}') no-repeat center center;
             background-size: cover;
         }
         .left-half {
-            width: 50%;
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -32,7 +31,7 @@
             padding: 2rem;
             border-radius: 10px;
             width: 90%;
-            height: 90%;
+            max-width: 400px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             color: white;
         }
@@ -66,32 +65,37 @@
         .register-logo img {
             max-width: 100px;
         }
-        .flash-messages {
-            position: absolute; /* Add this line */
-            top: 20px; /* Adjust as needed */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50%; /* Adjust as needed */
-            z-index: 1000; /* Add this line */
-        }
-        .alert {
-            background: rgba(0, 0, 0, 0.5);
-            border: none;
-            color: white;
-        }
         .password-criteria {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             padding-top: 10px;
+            margin-top: 10px;
+            border-top: 1px solid #444;
         }
         .password-criteria span {
             font-size: 0.8rem;
+            flex-basis: 48%;
+            margin-bottom: 5px;
         }
         .password-criteria .valid {
             color: #28a745;
         }
         .password-criteria .invalid {
             color: #dc3545;
+        }
+
+        @media (min-width: 768px) {
+            .right-half {
+                display: block;
+                flex: 1;
+            }
+            .left-half {
+                width: 50%;
+            }
+            .register-form {
+                max-width: 600px;
+            }
         }
     </style>
 </head>
@@ -129,23 +133,13 @@
                     </div>
                     <div class="form-group">
                         {{ form.contraseña.label }}*
-                        {{ form.contraseña(class="form-control", placeholder="********") }}
+                        {{ form.contraseña(class="form-control", placeholder="********", id="contraseña") }}
                         <div class="password-criteria">
                             <span class="length invalid">8 caracteres</span>
-                            <i class="fas fa-times invalid" aria-hidden="true"></i>
-                            <i class="fas fa-check valid" aria-hidden="true"></i>
                             <span class="uppercase invalid">Una letra mayúscula</span>
-                            <i class="fas fa-times invalid" aria-hidden="true"></i>
-                            <i class="fas fa-check valid" aria-hidden="true"></i>
                             <span class="lowercase invalid">Una letra minúscula</span>
-                            <i class="fas fa-times invalid" aria-hidden="true"></i>
-                            <i class="fas fa-check valid" aria-hidden="true"></i>
                             <span class="number invalid">Un número</span>
-                            <i class="fas fa-times invalid" aria-hidden="true"></i>
-                            <i class="fas fa-check valid" aria-hidden="true"></i>
                             <span class="specialChar invalid">Un carácter especial</span>
-                            <i class="fas fa-times invalid" aria-hidden="true"></i>
-                            <i class="fas fa-check valid" aria-hidden="true"></i>
                         </div>
                     </div>
                     <div class="form-group">

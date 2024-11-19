@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 
 {% block title %}Detalles de la Actividad{% endblock %}
-
+{% block extra_head %}
+<meta property="og:title" content="{{ actividad.nombre }}">
+<meta property="og:description" content="{{ actividad.descripcion }}">
+<meta property="og:image" content="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id, _external=True) }}">
+<meta property="og:url" content="{{ url_for('main.ver_actividad', id=actividad.id, _external=True) }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="San Andrés">
+<meta property="og:locale" content="es_ES">
+{% endblock %}
 {% block content %}
 <br>
 <div class="container mt-5">
@@ -34,6 +42,25 @@
             {% else %}
                 <img src="https://via.placeholder.com/800x400" class="img-fluid rounded-lg shadow-sm object-cover" alt="Sin imagen disponible">
             {% endif %}
+
+            <div class="social-share mt-4">
+                <h5 class="text-center">¡Comparte esta actividad!</h5>
+                <div class="d-flex justify-content-center">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_for('main.ver_actividad', id=actividad.id, _external=True) }}" target="_blank" class="btn-social-icon btn-facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ url_for('main.ver_actividad', id=actividad.id, _external=True) }}&text={{ actividad.nombre }}" target="_blank" class="btn btn-social-icon btn-twitter mx-2">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ url_for('main.ver_actividad', id=actividad.id, _external=True) }}" target="_blank" class="btn btn-social-icon btn-linkedin mx-2">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://wa.me/?text={{ url_for('main.ver_actividad', id=actividad.id, _external=True) }}" target="_blank" class="btn btn-social-icon btn-whatsapp mx-2">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+
         </div>
         <div class="col-lg-5">
             <div class="card border-0">
@@ -64,9 +91,9 @@
                 <li class="nav-item">
                     <a class="nav-link active" id="descripcion-tab" data-toggle="tab" href="#descripcion" role="tab" aria-controls="descripcion" aria-selected="true">Descripción General</a>
                 </li>
-                <li class="nav-item">
+               <!-- <li class="nav-item">
                     <a class="nav-link" id="itinerario-tab" data-toggle="tab" href="#itinerario" role="tab" aria-controls="itinerario" aria-selected="false">Itinerario</a>
-                </li>
+                </li> -->
                 <li class="nav-item">
                     <a class="nav-link" id="equipamiento-tab" data-toggle="tab" href="#equipamiento" role="tab" aria-controls="equipamiento" aria-selected="false">Equipamiento</a>
                 </li>
@@ -77,6 +104,9 @@
                     <a class="nav-link" id="galeria-tab" data-toggle="tab" href="#galeria" role="tab" aria-controls="galeria" aria-selected="false">Galería</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" id="" data-toggle="tab" href="#relacionadas" role="tab" aria-controls="relacionadas" aria-selected="false">Actividades Relacionadas</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" id="faq-tab" data-toggle="tab" href="#faq" role="tab" aria-controls="faq" aria-selected="false">Preguntas Frecuentes</a>
                 </li>
             </ul>
@@ -85,6 +115,12 @@
                     <p><strong>Nivel físico requerido:</strong> {{ actividad.nivel_fisico_requerido }}</p>
                     <p><strong>Duración:</strong> {{ actividad.tiempo_promedio_duracion }}</p>
                     <p><strong>Temperatura:</strong> {{ actividad.temperatura_minima }} ºC - {{ actividad.temperatura_maxima }} ºC</p>
+                    <p><strong>Precipitación Media Anual:</strong> {{ actividad.precipitacion_media_anual }} mm</p>
+                    <p><strong>Cota Máxima:</strong> {{ actividad.cota_maxima }} m</p>
+                    <p><strong>Cota Mínima:</strong> {{ actividad.cota_minima }} m</p>
+                    <p><strong>Desnivel Subida:</strong> {{ actividad.desnivel_subida }} m</p>
+                    <p><strong>Desnivel Bajada:</strong> {{ actividad.desnivel_bajada }} m</p>
+                    <p><strong>Tipo de Superficie:</strong> {{ actividad.tipo_superficie }}</p>
                 </div>
                 <div class="tab-pane fade" id="itinerario" role="tabpanel" aria-labelledby="itinerario-tab">
                     <h3>Itinerario de la Actividad</h3>
@@ -122,6 +158,10 @@
                     <p><strong>Ubicación:</strong> {{ actividad.sitio }}</p>
                     <p><strong>Inicio:</strong> {{ actividad.lugar_partida }}</p>
                     <p><strong>Destino:</strong> {{ actividad.lugar_llegada }}</p>
+                    <p><strong>Acceso:</strong> {{ actividad.acceso }}</p>
+                    <div id="map-google" style="height: 400px;">
+                        <div id="map" style="height: 100%;"></div>
+                    </div>
                 </div>
                 <div class="tab-pane fade" id="galeria" role="tabpanel" aria-labelledby="galeria-tab">
                     {% if actividad.imagenes or fotos_visitas %}
@@ -144,6 +184,7 @@
 
                 <div class="tab-pane fade" id="faq" role="tabpanel" aria-labelledby="faq-tab">
                     <h3>Preguntas Frecuentes</h3>
+                    <br>
                     <div class="faq-item">
                         <h5><strong>¿Qué incluye el precio del tour?</strong></h5>
                         <p>El precio incluye el transporte desde el punto de encuentro, guías profesionales, equipo grupal e individual, y todas las comidas durante la actividad.</p>
@@ -153,10 +194,6 @@
                         <p>No es necesario tener experiencia previa. La actividad está diseñada para ser accesible para todos los niveles de habilidad.</p>
                     </div>
                     <div class="faq-item">
-                        <h5><strong>¿Qué debo llevar conmigo?</strong></h5>
-                        <p>Recomendamos llevar ropa cómoda y adecuada para el clima, una botella de agua, protector solar, y cualquier medicación personal que pueda necesitar.</p>
-                    </div>
-                    <div class="faq-item">
                         <h5><strong>¿Hay alguna restricción de edad?</strong></h5>
                         <p>La actividad es adecuada para personas de todas las edades. Sin embargo, los niños menores de 12 años deben estar acompañados por un adulto.</p>
                     </div>
@@ -164,6 +201,28 @@
                         <h5><strong>¿Qué pasa si llueve?</strong></h5>
                         <p>La actividad se realizará independientemente de las condiciones climáticas, a menos que haya un aviso de seguridad. En caso de cancelación, se reprogramará para otra fecha.</p>
                     </div>
+                </div>
+
+                <div class="tab-pane fade" id="relacionadas" role="tabpanel" aria-labelledby="relacionadas-tab">
+                    <h3>Actividades Relacionadas</h3>
+                    <br>
+                    <!-- Aquí podrías iterar sobre una lista de actividades relacionadas -->
+                    {% for actividad_relacionada in actividades_relacionadas %}
+                    <div class="card mb-3">
+                        <div class="row no-gutters">
+                            <div class="col-md-4">
+                                <img src="{{ url_for('main.get_actividad_image', id=actividad_relacionada.imagenes[0].id) }}" class="card-img" alt="{{ actividad_relacionada.nombre }}">
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ actividad_relacionada.nombre }}</h5>
+                                    <p class="card-text">{{ actividad_relacionada.descripcion }}</p>
+                                    <a href="{{ url_for('main.ver_actividad', id=actividad_relacionada.id) }}" class="btn btn-primary">Ver más</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -287,10 +346,24 @@
         modal.find('.modal-body #actividadNombre').val(actividadNombre);
         modal.find('.modal-body input[name="actividad_id"]').val(actividadId);
     });
+
+    // Cargar el mapa de Google
+    function initMap() {
+        var location = { lat: parseFloat('{{ actividad.localizacion_geografica.split(",")[0] }}'), lng: parseFloat('{{ actividad.localizacion_geografica.split(",")[1] }}') };
+        var map = new google.maps.Map(document.getElementById('map-google'), {
+            zoom: 12,
+            center: location
+        });
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map
+        });
+    }
 </script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+
 
 <style>
-
 h1, h2, h3, h4, h5, h6 {
     font-weight: bold;
     color: #333;
@@ -409,102 +482,165 @@ p, ul, li, a, button {
     font-weight: bold;
 }
 
-    .modal-header {
-        background-color: #ffc107;
-        color: #fff;
-        border-bottom: 2px solid #e0a800;
-    }
-    .modal-content {
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .star-rating {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        direction: rtl;
-    }
-    .star-rating input[type="radio"] {
-        display: none;
-    }
-    .star-rating label {
-        font-size: 2rem;
-        color: #ddd;
-        cursor: pointer;
-        transition: color 0.2s;
-        margin: 0 5px;
-    }
-    .star-rating label::before {
-        content: '★';
-    }
-    .star-rating input[type="radio"]:checked ~ label,
-    .star-rating label:hover,
-    .star-rating label:hover ~ label {
-        color: #f7d106;
-    }
-    .star-rating input[type="radio"]:checked ~ label ~ label {
-        color: #ddd;
-    }
-    .modal-footer .btn {
-        min-width: 100px;
-    }
-    .form-group label {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-    .form-control, .form-control-file {
-        border-radius: 0.25rem;
-        border: 1px solid #ced4da;
-        padding: 10px;
-        margin-bottom: 15px;
-    }
-    .carousel-inner img {
-        height: 500px;
-        object-fit: cover;
-    }
-    .tab-content {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-top: none;
-        border-radius: 0 0 5px 5px;
-    }
-    .nav-tabs .nav-link {
-        border-radius: 0;
-        color: black;  /* Cambiar el color de las letras a negro */
-    }
-    .nav-tabs .nav-link.active {
-        border: 1px solid #dee2e6;
-        border-bottom-color: #f8f9fa;
-    }
-    .d-flex div span:first-child {
-        width: 50%;
-        font-weight: bold;
-    }
-    .d-flex div span:last-child {
-        width: 50%;
-        text-align: right;
-    }
-    .custom-nav-tabs .nav-link {
-        color: black !important;
-    }
-    .card-body {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
-    }
-    .card-body {
-        padding: 20px;
-    }
-    .card-body img {
-        width: 50px;
-        height: 200px;
-    }
-    .card-body .mb-0 {
-        flex-grow: 1;
-    }
-    .rounded-circle i {
-        font-size: 1.5rem;
-    }
+.modal-header {
+    background-color: #ffc107;
+    color: #fff;
+    border-bottom: 2px solid #e0a800;
+}
+
+.modal-content {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.star-rating {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    direction: rtl;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin: 0 5px;
+}
+
+.star-rating label::before {
+    content: '★';
+}
+
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #f7d106;
+}
+
+.star-rating input[type="radio"]:checked ~ label ~ label {
+    color: #ddd;
+}
+
+.modal-footer .btn {
+    min-width: 100px;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-control, .form-control-file {
+    border-radius: 0.25rem;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.carousel-inner img {
+    height: 500px;
+    object-fit: cover;
+}
+
+.tab-content {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+}
+
+.nav-tabs .nav-link {
+    border-radius: 0;
+    color: black;  /* Cambiar el color de las letras a negro */
+}
+
+.nav-tabs .nav-link.active {
+    border: 1px solid #dee2e6;
+    border-bottom-color: #f8f9fa;
+}
+
+.d-flex div span:first-child {
+    width: 50%;
+    font-weight: bold;
+}
+
+.d-flex div span:last-child {
+    width: 50%;
+    text-align: right;
+}
+
+.custom-nav-tabs .nav-link {
+    color: black !important;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-body img {
+    width: 50px;
+    height: 200px;
+}
+
+.card-body .mb-0 {
+    flex-grow: 1;
+}
+
+.rounded-circle i {
+    font-size: 1.5rem;
+}
+
+.social-share {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-social-icon {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-social-icon i {
+    color: #333;
+}
+
+.btn-social-icon:hover {
+    background-color: #ddd;
+}
+
+.btn-facebook i {
+    color: #3b5998;
+}
+
+.btn-twitter i {
+    color: #1da1f2;
+}
+
+.btn-instagram i {
+    color: #e1306c;
+}
+
+.btn-whatsapp i {
+    color: #25d366;
+}
 </style>
 {% endblock %}

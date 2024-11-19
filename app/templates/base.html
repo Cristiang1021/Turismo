@@ -18,6 +18,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
     {% block extra_head %}{% endblock %}
     <style>
         .chatbot-container {
@@ -59,9 +60,10 @@
 
 <!-- Contenedor del chatbot -->
 <div class="chatbot-container">
-    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
 <df-messenger
-  intent="WELCOME"
+        intent="WELCOME"
+  chat-icon="https:&#x2F;&#x2F;www.svgrepo.com&#x2F;show&#x2F;339963&#x2F;chat-bot.svg"
   chat-title="ASISTENTEDEVIAJE"
   agent-id="287dc4e1-fdf0-4ee1-8a28-ca1be1b328f8"
   language-code="es"
@@ -70,18 +72,18 @@
 
 <div class="container mt-4">
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="alert alert-dismissible fade show">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    {% endif %}
+        {% if messages %}
+            {% for category, message in messages %}
+    <br>
+                <div class="flash-message {{ category }}">
+                    <span>{{ message }}</span>
+                    <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        {% endif %}
     {% endwith %}
 </div>
+
 
 <div class="container-fluid px-0">
     {% block content %}{% endblock %}

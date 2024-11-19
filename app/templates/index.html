@@ -6,6 +6,11 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+<style>
+    .search-box {
+        display: none;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -14,14 +19,15 @@
         <div class="row">
             <div class="col-md-6 d-flex flex-column justify-content-center">
                 <h1 class="display-4 font-weight-bold">Descubre las mejores actividades para tu próxima aventura</h1>
+                <br>
                 <p class="lead text-muted">Explora un mundo de actividades emocionantes y crea recuerdos inolvidables. Encuentra la experiencia perfecta para tu próximo viaje.</p>
                 <div class="d-flex mt-4">
                     <a href="{{ url_for('main.actividades') }}" class="btn btn-warning btn-lg mr-3">Explorar actividades</a>
                 </div>
                 <div class="search-box mt-4">
-                    <form class="form-inline bg-white p-3 rounded shadow">
-                        <input class="form-control form-control-lg mr-4" type="search" placeholder="Buscar actividades..." aria-label="Search">
-                        <button class="btn btn-warning btn-lg" type="submit">Buscar</button>
+                    <form class="form-inline bg-white p-3 rounded shadow position-relative">
+                        <input class="form-control form-control-lg mr-4" type="text" id="search-main" placeholder="Buscar actividades..." aria-label="Search">
+                        <div id="suggestions-main" class="suggestions-container"></div>
                     </form>
                 </div>
             </div>
@@ -54,35 +60,69 @@
         </div>
     </section>
     <!-- Sección de Actividades Destacadas -->
-    <section id="featured">
-        <h2 class="mb-5 text-center">Actividades Destacadas</h2>
-        <p class="lead text-muted">Consulta nuestras actividades mejor valoradas, perfectas para tu próxima aventura.</p>
+    <section id="featured" class="mb-5">
+        <h2 class="mb-4 text-center">Actividades Destacadas</h2>
+        <p class="lead text-muted text-center">Consulta nuestras actividades mejor valoradas, perfectas para tu próxima aventura.</p>
+        <br>
+        {% if current_user.is_authenticated %}
             {% if recomendaciones %}
-        <div class="row" id="actividades-container">
-                {% for actividad in recomendaciones %}
-                <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="{{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ actividad.nombre }}</h5>
-                    <p class="card-text">{{ actividad.descripcion[:100] }}...</p>
-                    <div class="mt-auto">
-                        <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-warning btn-sm">Ver más</a>
-                    </div>
+                <div class="row" id="actividades-recomendadas-container">
+                    {% for actividad in recomendaciones %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                {% if actividad.imagenes %}
+                                <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ actividad.nombre }}</h5>
+                                    <p class="card-text">{{ actividad.descripcion[:100] }}...</p>
+                                    <div class="mt-auto">
+                                        <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-warning btn-sm">Ver más</a>
+                                    </div>
+                                </div>
+                                <div class="card-footer d-flex justify-content-between align-items-center">
+                                    <span class="badge {{ 'badge-success' if actividad.nivel_dificultad == 'Fácil' else 'badge-warning' if actividad.nivel_dificultad == 'Medio' else 'badge-danger' }}">
+                                        {{ actividad.nivel_dificultad }}
+                                    </span>
+                                    <span>${{ actividad.precio_referencial }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-                <div class="card-footer">
-                    <span class="badge {% if actividad.nivel_dificultad == 'Fácil' %}badge-success{% elif actividad.nivel_dificultad == 'Medio' %}badge-warning{% else %}badge-danger{% endif %}">
-                        {{ actividad.nivel_dificultad }}
-                    </span>
-                    <span class="float-right">${{ actividad.precio_referencial }}</span>
-                </div>
-            </div>
-            </div>
-                {% endfor %}
-        </div>
             {% else %}
-                <p>No hay actividades recomendadas en este momento.</p>
+                <p class="text-center">No hay actividades recomendadas en este momento.</p>
             {% endif %}
+        {% elif destacadas %}
+            <div class="row" id="actividades-destacadas-container">
+                {% for actividad in destacadas %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            {% if actividad.imagenes %}
+                            <img src="{{ url_for('main.get_actividad_image', id=actividad.imagenes[0].id) }}" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                            <img src="https://via.placeholder.com/200" class="card-img-top" alt="Imagen de {{ actividad.nombre }}" style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ actividad.nombre }}</h5>
+                                <p class="card-text">{{ actividad.descripcion[:100] }}...</p>
+                                <div class="mt-auto">
+                                    <a href="{{ url_for('main.ver_actividad', id=actividad.id) }}" class="btn btn-warning btn-sm">Ver más</a>
+                                </div>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between align-items-center">
+                                <span class="badge {{ 'badge-success' if actividad.nivel_dificultad == 'Fácil' else 'badge-warning' if actividad.nivel_dificultad == 'Medio' else 'badge-danger' }}">
+                                    {{ actividad.nivel_dificultad }}
+                                </span>
+                                <span>${{ actividad.precio_referencial }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </section>
 </main>
 {% endblock %}
@@ -149,6 +189,69 @@
                     }
                 }
             ]
+        });
+
+        const searchInput = document.getElementById('search-main');
+        const suggestionsContainer = document.getElementById('suggestions-main');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+
+            if (query.length > 1) {
+                fetch(`/buscar?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestionsContainer.innerHTML = '';
+                        if (data.length > 0) {
+                            suggestionsContainer.style.display = 'block';
+                            data.forEach(item => {
+                                const suggestionItem = document.createElement('div');
+                                suggestionItem.className = 'suggestion-item';
+
+                                const textContainer = document.createElement('div');
+                                textContainer.className = 'text-container';
+
+                                const suggestionText = document.createElement('div');
+                                suggestionText.className = 'suggestion-text';
+                                suggestionText.textContent = item.nombre;
+
+                                const suggestionSubtext = document.createElement('div');
+                                suggestionSubtext.className = 'suggestion-subtext';
+                                suggestionSubtext.textContent = item.descripcion.slice(0, 50) + '...';
+
+                                textContainer.appendChild(suggestionText);
+                                textContainer.appendChild(suggestionSubtext);
+
+                                const suggestionIcon = document.createElement('div');
+                                suggestionIcon.className = 'suggestion-icon';
+                                suggestionIcon.textContent = '→';
+
+                                suggestionItem.appendChild(textContainer);
+                                suggestionItem.appendChild(suggestionIcon);
+
+                                suggestionItem.addEventListener('click', () => {
+                                    window.location.href = `/actividad/${item.id}`;
+                                });
+
+                                suggestionsContainer.appendChild(suggestionItem);
+                            });
+                        } else {
+                            suggestionsContainer.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching search results:', error);
+                        suggestionsContainer.style.display = 'none';
+                    });
+            } else {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!suggestionsContainer.contains(event.target) && !searchInput.contains(event.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
         });
     });
 </script>

@@ -62,9 +62,9 @@
                             </div>
                         </div>
                         <div class="card-footer d-flex justify-content-between align-items-center">
-                            <span class="badge {% if actividad.nivel_dificultad == 'Fácil' %}badge-success{% elif actividad.nivel_dificultad == 'Medio' %}badge-warning{% else %}badge-danger{% endif %}">
-                                {{ actividad.nivel_dificultad }}
-                            </span>
+                            <span class="badge {{ 'badge badge-success' if actividad.nivel_dificultad == 'Fácil' else 'badge-warning' if actividad.nivel_dificultad == 'Medio' else 'badge-danger' }}">
+  {{ actividad.nivel_dificultad }}
+</span>
                             <span>${{ actividad.precio_referencial }}</span>
                         </div>
                     </div>

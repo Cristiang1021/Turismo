@@ -101,3 +101,35 @@ class ResetPasswordForm(FlaskForm):
     ])
     contraseña2 = PasswordField('Confirmar Contraseña', validators=[DataRequired()])
     submit = SubmitField('Restablecer Contraseña')
+
+
+class CambiarContraseñaForm(FlaskForm):
+    current_password = PasswordField('Contraseña Actual', validators=[DataRequired()])
+    new_password = PasswordField('Nueva Contraseña', validators=[
+        DataRequired(),
+        Length(min=8, message='La contraseña debe tener al menos 8 caracteres.'),
+        Regexp(
+            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_\-+={}\[\]:;<>?,./~`|])[A-Za-z\d!@#$%^&*()_\-+={}\[\]:;<>?,./~`|]{8,}$',
+            message='Debe incluir mayúsculas, minúsculas, números y caracteres especiales.')
+    ])
+    confirm_password = PasswordField('Confirmar Nueva Contraseña', validators=[
+        DataRequired(),
+        EqualTo('new_password', message='Las contraseñas no coinciden.')
+    ])
+    submit = SubmitField('Cambiar Contraseña')
+
+
+class UpdateProfileForm(FlaskForm):
+    nombre = StringField('Nombre', validators=[DataRequired()])
+    correo = StringField('Correo', validators=[DataRequired(), Email()])
+    submit = SubmitField('Guardar cambios')
+
+    def __init__(self, original_email, *args, **kwargs):
+        super(UpdateProfileForm, self).__init__(*args, **kwargs)
+        self.original_email = original_email
+
+    def validate_correo(self, correo):
+        if correo.data != self.original_email:
+            usuario = Usuario.query.filter_by(correo=correo.data).first()
+            if usuario:
+                raise ValidationError('El correo ya está en uso. Por favor, elige un correo diferente.')

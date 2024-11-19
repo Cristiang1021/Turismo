@@ -9,11 +9,10 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-      <form class="form-inline my-2 my-lg-0 mx-auto">
+      <form class="form-inline my-2 my-lg-0 mx-auto position-relative">
         <div class="input-group">
-          <input type="search" placeholder="Buscar actividades..." class="form-control pl-10 pr-4 py-2 rounded-md" style="width: 400px;">
-          <div class="input-group-append">
-          </div>
+          <input type="text" id="search" placeholder="Buscar actividades..." class="form-control pl-10 pr-4 py-2 rounded-md" style="width: 400px;">
+          <div id="suggestions" class="suggestions-container"></div>
         </div>
       </form>
       <ul class="navbar-nav ml-auto">
@@ -46,3 +45,63 @@
     </div>
   </div>
 </nav>
+<script>
+  document.addEventListener('DOMContentLoaded', (event) => {
+    const searchInput = document.getElementById('search');
+    const suggestionsContainer = document.getElementById('suggestions');
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+
+        if (query.length > 1) {
+            fetch(`/buscar?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsContainer.innerHTML = '';
+                    if (data.length > 0) {
+                        suggestionsContainer.style.display = 'block';
+                        data.forEach(item => {
+                            const suggestionItem = document.createElement('div');
+                            suggestionItem.className = 'suggestion-item';
+
+                            const textContainer = document.createElement('div');
+                            textContainer.className = 'text-container';
+
+                            const suggestionText = document.createElement('div');
+                            suggestionText.className = 'suggestion-text';
+                            suggestionText.textContent = item.nombre;
+
+                            const suggestionSubtext = document.createElement('div');
+                            suggestionSubtext.className = 'suggestion-subtext';
+                            suggestionSubtext.textContent = item.descripcion ? item.descripcion.slice(0, 50) + '...' : '';
+
+                            textContainer.appendChild(suggestionText);
+                            textContainer.appendChild(suggestionSubtext);
+
+                            suggestionItem.appendChild(textContainer);
+                            suggestionItem.addEventListener('click', () => {
+                                window.location.href = `/actividad/${item.id}`;
+                            });
+
+                            suggestionsContainer.appendChild(suggestionItem);
+                        });
+                    } else {
+                        suggestionsContainer.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching search results:', error);
+                    suggestionsContainer.style.display = 'none';
+                });
+        } else {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!suggestionsContainer.contains(event.target) && !searchInput.contains(event.target)) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+});
+</script>

@@ -5,14 +5,74 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>Perfil de Usuario</h1>
-    <div class="card">
+    <h1 class="mb-4">Configuración de la Cuenta</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Información Personal</h3>
+        </div>
         <div class="card-body">
-            <p><strong>Nombre:</strong> {{ user.nombre }}</p>
-            <p><strong>Email:</strong> {{ user.correo }}</p>
-            <p><strong>Contraseña:</strong> ************</p>
-            <a href="{{ url_for('main.cambiar_contraseña') }}" class="btn btn-primary">Cambiar Contraseña</a>
+                    <form method="POST" action="{{ url_for('main.profile') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ form.nombre.label(class="form-label") }}
+                            {{ form.nombre(class="form-control") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.correo.label(class="form-label") }}
+                            {{ form.correo(class="form-control") }}
+                        </div>
+                        <div class="text-right">
+                    <button type="submit" class="btn btn-warning">Guardar cambios</button>
+                </div>
+                    </form>
+                </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Cambiar Contraseña</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.cambiar_contraseña') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="current-password">Contraseña Actual</label>
+                    <input type="password" class="form-control" id="current-password" name="current_password" placeholder="Ingrese su contraseña actual">
+                </div>
+                <div class="form-group">
+                    <label for="new-password">Nueva Contraseña</label>
+                    <input type="password" class="form-control" id="new-password" name="new_password" placeholder="Ingrese la nueva contraseña">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" id="confirm-password" name="confirm_password" placeholder="Confirme la nueva contraseña">
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-warning">Cambiar contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Eliminar Cuenta</h3>
+        </div>
+        <div class="card-body">
+            <p>Si elimina su cuenta, no podrá recuperarla. Por favor, confirme su contraseña para continuar.</p>
+            <form method="POST" action="{{ url_for('main.eliminar_cuenta') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="confirm-password-delete">Contraseña</label>
+                    <input type="password" class="form-control" id="confirm-password-delete" name="password" placeholder="Ingrese su contraseña">
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="btn btn-danger">Eliminar cuenta</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
 {% endblock %}

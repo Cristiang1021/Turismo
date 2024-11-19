@@ -5,13 +5,14 @@ import os
 
 import requests
 from flask import Blueprint, render_template, flash, redirect, url_for, request, send_from_directory, jsonify, \
-    send_file, make_response
+    send_file, make_response, current_app
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_mail import Message
 from flask_wtf import csrf, CSRFProtect
-from sqlalchemy import func
+from pip._internal import req
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 import openai
 import fitz  # PyMuPDF
@@ -23,13 +24,17 @@ from . import db
 from app import mail
 from .email import send_reset_email, send_recommendation_email
 from .forms import LoginForm, RegistrationForm, RecomendacionForm, \
-    RegistroVisitaForm, EditarRespuestasForm, RequestResetForm, ResetPasswordForm
+    RegistroVisitaForm, EditarRespuestasForm, RequestResetForm, ResetPasswordForm, CambiarContraseñaForm, \
+    UpdateProfileForm
 from .models import Usuario, ActividadTuristica, Categoria, ImagenActividad, RespuestasFormulario, Visita, FotoVisita, \
     ActividadVista
 
 main_bp = Blueprint('main', __name__)
-openai.api_key = os.environ.get('OPENAI_API_KEY')
 
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+
+openai.api_key = OPENAI_API_KEY
 
 from decimal import Decimal
 
@@ -81,6 +86,7 @@ def index():
     categorias = Categoria.query.all()
     actividades = ActividadTuristica.query.all()
     recomendaciones = []
+    destacadas = []
     form = None
 
     if current_user.is_authenticated:
@@ -88,8 +94,19 @@ def index():
         respuestas = RespuestasFormulario.query.filter_by(user_id=current_user.id).first()
         if not respuestas or request.args.get('new_user') == 'True':
             form = RecomendacionForm()
+    else:
+        # Obtener las actividades con las mejores valoraciones
+        mejor_actividades = (db.session.query(ActividadTuristica, func.avg(Visita.valoracion).label('avg_valoracion'))
+                             .join(Visita)
+                             .group_by(ActividadTuristica.id)
+                             .order_by(func.avg(Visita.valoracion).desc())
+                             .limit(3)
+                             .all())
+        # Filtra solo las actividades
+        destacadas = [actividad for actividad, _ in mejor_actividades]
 
-    return render_template('index.html', categorias=categorias, actividades=actividades, recomendaciones=recomendaciones, form=form)
+    return render_template('index.html', categorias=categorias, actividades=actividades, recomendaciones=recomendaciones, destacadas=destacadas, form=form)
+
 
 @main_bp.route('/recomendaciones', methods=['GET', 'POST'])
 @login_required
@@ -308,27 +325,70 @@ def actividades_por_categoria(categoria_id):
     return render_template('actividades_por_categoria.html', categoria=categoria, actividades=actividades,
                            categorias=Categoria.query.all())
 
-@main_bp.route('/profile')
+
+@main_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('perfil.html', user=current_user)
+    usuario = current_user
+    form = UpdateProfileForm(original_email=usuario.correo, obj=usuario)
+
+    if form.validate_on_submit():
+        if form.correo.data != usuario.correo:
+            usuario.correo = form.correo.data
+        usuario.nombre = form.nombre.data
+        db.session.commit()
+        flash('Tu perfil ha sido actualizado.', 'success')
+        return redirect(url_for('main.profile'))
+    else:
+        # Si hay errores en el formulario, agregarlos como mensajes flash
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Error en el campo {field}: {error}", 'danger')
+
+    return render_template('perfil.html', user=usuario, form=form)
 
 
-
-@main_bp.route('/cambiar_contraseña', methods=['GET', 'POST'])
+@main_bp.route('/cambiar_contraseña', methods=['POST'])
 @login_required
 def cambiar_contraseña():
-    # Lógica para cambiar la contraseña
-    return render_template('cambiar_contraseña.html')
+    user = current_user
+    form = CambiarContraseñaForm()
+
+    if form.validate_on_submit():
+        current_password = form.current_password.data
+        new_password = form.new_password.data
+        confirm_password = form.confirm_password.data
+
+        if not check_password_hash(user.password, current_password):
+            flash('Contraseña actual incorrecta.', 'danger')
+        elif new_password != confirm_password:
+            flash('La nueva contraseña y la confirmación no coinciden.', 'danger')
+        else:
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+            flash('Contraseña actualizada con éxito.', 'success')
+    else:
+        # Agregar mensajes de errores específicos de validación
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"Error en el campo {field}: {error}", 'danger')
+
+    return redirect(url_for('main.profile'))
 
 
 @main_bp.route('/actividad/<int:id>', methods=['GET', 'POST'])
 def ver_actividad(id):
     actividad = ActividadTuristica.query.get_or_404(id)
+    google_maps_api_key = current_app.config['GOOGLE_MAPS_API_KEY']
     visitas = Visita.query.filter_by(actividad_id=id).order_by(Visita.valoracion.desc()).limit(6).all()
     fotos_visitas = FotoVisita.query.join(Visita).filter(Visita.actividad_id == id).all()
     form = RegistroVisitaForm()
     form.actividad_id.choices = [(actividad.id, actividad.nombre)]
+
+    actividades_relacionadas = ActividadTuristica.query.filter(
+        ActividadTuristica.categoria_id == actividad.categoria_id,
+        ActividadTuristica.id != id
+    ).limit(4).all()  # Limitar a 4 actividades relacionadas para no sobrecargar la vista
 
     if form.validate_on_submit() and current_user.is_authenticated:
         visita = Visita(
@@ -366,7 +426,13 @@ def ver_actividad(id):
         db.session.add(vista)
     db.session.commit()
 
-    return render_template('ver_actividad.html', actividad=actividad, fotos_visitas=fotos_visitas, form=form, date=datetime.date, visitas=visitas)
+    return render_template(
+        'ver_actividad.html', actividad=actividad,
+        fotos_visitas=fotos_visitas, form=form,
+        date=datetime.date, visitas=visitas,
+        google_maps_api_key = current_app.config['GOOGLE_MAPS_API_KEY'],
+        actividades_relacionadas=actividades_relacionadas
+    )
 
 @main_bp.route('/foto_visita/<int:id>')
 def get_foto_visita(id):
@@ -375,6 +441,15 @@ def get_foto_visita(id):
     response.headers.set('Content-Type', foto.mimetype)
     response.headers.set('Content-Disposition', 'inline', filename=foto.filename)
     return response
+
+@main_bp.route('/buscar', methods=['GET'])
+def buscar():
+    query = request.args.get('q')
+    if query:
+        actividades = ActividadTuristica.query.filter(ActividadTuristica.nombre.ilike(f'%{query}%')).all()
+        resultados = [{'id': actividad.id, 'nombre': actividad.nombre, 'descripcion': actividad.descripcion} for actividad in actividades]
+        return jsonify(resultados)
+    return jsonify([])
 
 
 @main_bp.route('/preferencias', methods=['GET', 'POST'])
@@ -410,13 +485,36 @@ def preferencias():
 
         db.session.commit()
         flash('Preferencias actualizadas con éxito', 'success')
-        return redirect(url_for('preferencias'))
+        return redirect(url_for('main.preferencias'))
 
     return render_template('preferencias.html', form=form, visitas=visitas)
 
 @main_bp.route('/mapa')
 def mapa():
     return render_template('asistente/mapa.html')
+
+@main_bp.route('/eliminar_cuenta', methods=['POST'])
+@login_required
+def eliminar_cuenta():
+    user = current_user
+    password = request.form.get('password')
+
+    if check_password_hash(user.password, password):
+        try:
+            Visita.query.filter_by(user_id=user.id).delete()
+            RespuestasFormulario.query.filter_by(user_id=user.id).delete()
+            db.session.delete(user)
+            db.session.commit()
+            logout_user()
+            flash('Cuenta eliminada con éxito.', 'success')
+            return redirect(url_for('main.index'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al eliminar la cuenta: {str(e)}', 'danger')
+    else:
+        flash('Contraseña incorrecta.', 'danger')
+
+    return redirect(url_for('main.profile'))
 
 
 def allowed_file(filename):
@@ -438,8 +536,8 @@ def extract_text_from_pdf_url(pdf_url):
         return "Error: Unable to process PDF."
 
 
-pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
-pdf_text = extract_text_from_pdf_url(pdf_url)
+##pdf_url = "https://drive.google.com/uc?id=10uDnZuUciYZ2oirwE7qP2UyZtMDS4rx-"  # Reemplaza con la URL de tu PDF
+##pdf_text = extract_text_from_pdf_url(pdf_url)
 
 
 # Función para hacer consultas a gpt-3.5-turbo-16k
@@ -452,11 +550,12 @@ def query_gpt4(question, context, max_context_length=2000):
         {"role": "user", "content": prompt},
     ]
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
+        model="gpt-4-turbo",
         messages=messages,
         max_tokens=150,
     )
     return response.choices[0].message["content"].strip()
+
 
 # Función para consultar actividades
 def consultar_actividades(categoria_nombre=None):
@@ -533,8 +632,6 @@ def send_recommendation_email(email, recommendations, days):
         print(f"Error al enviar el correo: {str(e)}")
 
 
-
-
 def obtener_actividades_mas_populares(n):
     actividades = ActividadTuristica.query \
         .join(ActividadVista) \
@@ -544,18 +641,186 @@ def obtener_actividades_mas_populares(n):
         .all()
     return actividades
 
+# Función para obtener información de una actividad con coincidencia parcial
+def obtener_informacion_actividad(actividad_nombre):
+    actividad = ActividadTuristica.query.filter(
+        or_(ActividadTuristica.nombre.ilike(f"%{actividad_nombre}%"),
+            ActividadTuristica.descripcion.ilike(f"%{actividad_nombre}%"))
+    ).first()
+    if actividad:
+        actividad_info = {
+            "title": actividad.nombre,
+            "subtitle": actividad.descripcion,
+            "image": f"https://turismo.ngrok.app/imagen_actividad/{actividad.imagenes[0].id}" if actividad.imagenes else "https://example.com/default.jpg",
+            "link": f"https://turismo.ngrok.app/actividad/{actividad.id}"
+        }
+        return actividad_info
+    else:
+        return None
+# Función para dar consejos sobre una actividad usando GPT-4
+def dar_consejos(actividad_nombre):
+    actividad = ActividadTuristica.query.filter(
+        or_(ActividadTuristica.nombre.ilike(f"%{actividad_nombre}%"),
+            ActividadTuristica.descripcion.ilike(f"%{actividad_nombre}%"))
+    ).first()
+    if actividad:
+        contexto = f"Nombre: {actividad.nombre}\nDescripción: {actividad.descripcion}\nRecomendaciones: {actividad.requerimiento_guia}\nÉpoca recomendada: {actividad.epoca_recomendada}\nNivel de dificultad: {actividad.nivel_dificultad}"
+        pregunta = f"Dame consejos para participar en {actividad.nombre}."
+        respuesta = query_gpt4(pregunta, contexto)
+        return respuesta
+    else:
+        return f"No se encontraron consejos para {actividad_nombre}."
+
+def handle_mostrar_actividad_y_mas():
+    actividad = obtener_actividad_destacada()
+    if actividad:
+        fulfillment_messages = [
+            {
+                "payload": {
+                    "richContent": [
+                        [
+                            {
+                                "type": "image",
+                                "rawUrl": f"https://turismo.ngrok.app/imagen_actividad/{actividad.imagenes[0].id}" if actividad.imagenes else "https://example.com/default.jpg",
+                                "accessibilityText": f"Imagen de la actividad {actividad.nombre}"
+                            },
+                            {
+                                "type": "info",
+                                "title": actividad.nombre,
+                                "subtitle": actividad.descripcion,
+                                "actionLink": f"https://turismo.ngrok.app/actividad/{actividad.id}"
+                            },
+                            {
+                                "type": "button",
+                                "icon": {
+                                    "type": "chevron_right",
+                                    "color": "#FF9800"
+                                },
+                                "text": "Descubre el resto de actividades aquí",
+                                "link": "https://turismo.ngrok.app/actividades"
+                            }
+                        ]
+                    ]
+                }
+            }
+        ]
+        return jsonify({"fulfillmentMessages": fulfillment_messages})
+    else:
+        return jsonify({"fulfillmentText": "No se encontró una actividad destacada."})
 
 @main_bp.route('/webhook', methods=['POST'])
 def webhook():
     req = request.get_json(force=True)
     action = req.get('queryResult').get('action')
     parameters = req.get('queryResult').get('parameters')
-    session = req.get('session')
 
-    print("Received action: ", action)  # Añade este print para ver qué acción se está recibiendo
+    if action == 'opciones_mapa':
+        # Opciones de actividades
+        response = {
+            "fulfillmentMessages": [
+                {
+                    "payload": {
+                        "richContent": [
+                            [
+                                {
+                                    "type": "info",
+                                    "title": "¿De qué actividad te gustaría ver el mapa?"
+                                },
+                                {
+                                    "type": "chips",
+                                    "options": [
+                                        {
+                                            "text": "Quiero ver el mapa de Camping en la ruta de los Hieleros del Chimborazo"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Interpretación de flora y fauna"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Camping en la ruta Piedra de Bolívar"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Camping en la ruta del Glaciar Hans Meyer"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Camping en la ruta Cascada Cóndor Samana"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Snowboard",
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Cicloturismo ruta Hieleros del Chimborazo"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Cayoning en la Cascada Cóndor Samana"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Senderismo Ruta Piedra de Bolívar"
+                                        },
+                                        {
+                                            "text": "Quiero ver el mapa de Senderismo Ruta Hieleros del Chimborazo"
+                                        }
+                                    ]
+                                }
+                            ]
+                        ]
+                    }
+                }
+            ]
+        }
+        return jsonify(response)
 
-    if action == 'recomendaciones':
-        print("Handling 'recomendaciones' action")
+    if action == 'mostrar_mapa':
+        actividad_nombre = parameters.get('actividad')
+        # Verificar si la actividad es seleccionada de las opciones
+        if actividad_nombre in ["Senderismo Ruta Piedra de Bolívar", "Cayoning en la Cascada Cóndor Samana",
+                                "Otra Actividad"]:
+            response = {
+                "fulfillmentText": f"Quiero ver el mapa de {actividad_nombre}"
+            }
+            return jsonify(response)
+
+        actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
+        if actividad:
+            localizacion = actividad.localizacion_geografica
+            if localizacion:
+                latitud, longitud = map(str.strip, localizacion.split(','))
+                mapa_url = f"https://www.google.com/maps/search/?api=1&query={latitud},{longitud}"
+                response = {
+                    "fulfillmentMessages": [
+                        {
+                            "payload": {
+                                "richContent": [
+                                    [
+                                        {
+                                            "type": "info",
+                                            "title": f"Ubicación de {actividad_nombre}",
+                                            "subtitle": f"Latitud: {latitud}, Longitud: {longitud}",
+                                            "actionLink": mapa_url
+                                        },
+                                        {
+                                            "type": "image",
+                                            "rawUrl": f"https://maps.googleapis.com/maps/api/staticmap?center={latitud},{longitud}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C{latitud},{longitud}&key={GOOGLE_MAPS_API_KEY}",
+                                            "accessibilityText": f"Mapa de la actividad {actividad_nombre}"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                }
+                return jsonify(response)
+            else:
+                return jsonify({"fulfillmentText": "Lo siento, no se encontró la localización de esa actividad."})
+        else:
+            return jsonify({"fulfillmentText": "Lo siento, no pude encontrar la ubicación de esa actividad."})
+
+
+    elif action == 'opciones_informacion':
+        return handle_opciones_informacion()
+    elif action == 'mostrar_informacion':
+        return handle_mostrar_informacion(parameters)
+
+    elif action == 'recomendaciones':
         response = {
             "fulfillmentMessages": [
                 {
@@ -586,7 +851,7 @@ def webhook():
         }
         return jsonify(response)
 
-    if action == 'usuario_registrado':
+    elif action == 'usuario_registrado':
         registrado = parameters.get('registrado')
         if registrado.lower() == 'sí':
             response = {
@@ -612,7 +877,7 @@ def webhook():
             }
             return jsonify(response)
 
-    if action == 'capturar_correo':
+    elif action == 'capturar_correo':
         email = parameters.get('email')
         usuario = Usuario.query.filter_by(correo=email).first()
         if usuario:
@@ -642,33 +907,10 @@ def webhook():
                 return jsonify({"fulfillmentMessages": fulfillment_messages})
             else:
                 response = {
-                    "fulfillmentMessages": [
-                        {
-                            "payload": {
-                                "richContent": [
-                                    [
-                                        {
-                                            "type": "info",
-                                            "title": "Todavía no has seleccionado tus preferencias.",
-                                            "subtitle": "¿Quieres hacerlo ahora?"
-                                        },
-                                        {
-                                            "type": "button",
-                                            "icon": {
-                                                "type": "chevron_right",
-                                                "color": "#FF9800"
-                                            },
-                                            "text": "Ir a Recomendaciones",
-                                            "link": "https://turismo.ngrok.app/recomendaciones"
-                                        }
-                                    ]
-                                ]
-                            }
-                        }
-                    ],
+                    "fulfillmentText": "Todavía no has seleccionado tus preferencias. ¿Quieres hacerlo ahora?",
                     "outputContexts": [
                         {
-                            "name": f"{session}/contexts/awaiting_preferences",
+                            "name": f"{req.get('session')}/contexts/awaiting_preferences",
                             "lifespanCount": 5,
                             "parameters": {
                                 "email": email
@@ -706,32 +948,39 @@ def webhook():
             }
             return jsonify(response)
 
-    if action == 'consultar_actividades':
-        categoria_nombre = parameters.get('categoria', None)
-        actividades_text = consultar_actividades(categoria_nombre)
-        return jsonify({
-            "fulfillmentMessages": [
-                {
+    elif action == 'mostrar_actividad_y_mas':
+        return handle_mostrar_actividad_y_mas()
+
+    elif action == 'actividades_mejores_resenas':
+        mejores_actividades = obtener_actividades_mejores_resenas()
+        if mejores_actividades:
+            fulfillment_messages = []
+            for actividad, valoracion_media, num_resenas in mejores_actividades:
+                message = {
                     "payload": {
-                        "richContent": actividades_text
+                        "richContent": [
+                            [
+                                {
+                                    "type": "image",
+                                    "rawUrl": f"https://turismo.ngrok.app/imagen_actividad/{actividad.imagenes[0].id}" if actividad.imagenes else "https://example.com/default.jpg",
+                                    "accessibilityText": f"Imagen de la actividad {actividad.nombre}"
+                                },
+                                {
+                                    "type": "info",
+                                    "title": f"{actividad.nombre}",
+                                    "subtitle": f"Valoración media: {valoracion_media:.1f} estrellas\nNúmero de reseñas: {num_resenas}",
+                                    "actionLink": f"https://turismo.ngrok.app/actividad/{actividad.id}"
+                                }
+                            ]
+                        ]
                     }
                 }
-            ]
-        })
+                fulfillment_messages.append(message)
+            return jsonify({"fulfillmentMessages": fulfillment_messages})
+        else:
+            return jsonify({"fulfillmentText": "No se encontraron actividades con reseñas."})
 
-    if action == 'ver_actividades':  # Nuevo manejador para 'ver_actividades'
-        actividades_text = consultar_actividades()  # Puedes ajustar si necesitas pasar parámetros
-        return jsonify({
-            "fulfillmentMessages": [
-                {
-                    "payload": {
-                        "richContent": actividades_text
-                    }
-                }
-            ]
-        })
-
-    if action == 'dar_consejos':
+    elif action == 'dar_consejos':
         actividad_nombre = parameters.get('actividad_nombre')
         actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
         if actividad:
@@ -745,26 +994,165 @@ def webhook():
 
 
 
-@main_bp.route('/check_user', methods=['GET'])
-def check_user():
-    if current_user.is_authenticated:
-        user_info = {
-            "user_id": current_user.id,
-            "user_name": current_user.nombre,
-            "user_email": current_user.correo
-        }
-        return jsonify(user_info), 200
-    else:
-        return jsonify({"error": "No user is currently logged in."}), 401
+def obtener_actividad_destacada():
+    # Obtener la actividad con el mayor número de vistas
+    actividad_vista = ActividadVista.query.order_by(ActividadVista.vistas.desc()).first()
+    if actividad_vista:
+        actividad = ActividadTuristica.query.get(actividad_vista.actividad_id)
+        return actividad
+    return None
 
 
-def dar_consejos(actividad_nombre):
-    actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
-    if actividad:
-        consejos = "Para participar en {}, se recomienda {}. Realizar durante {}, y el nivel de dificultad es {}.".format(
-            actividad.nombre, actividad.requerimiento_guia, actividad.epoca_recomendada, actividad.nivel_dificultad)
-        response_text = consejos
+def obtener_actividades_mejores_resenas():
+    actividades = db.session.query(
+        Visita.actividad_id,
+        db.func.avg(Visita.valoracion).label('valoracion_media'),
+        db.func.count(Visita.id).label('num_resenas')
+    ).group_by(Visita.actividad_id) \
+        .order_by(db.func.avg(Visita.valoracion).desc()) \
+        .limit(5) \
+        .all()
+
+    resultados = []
+    for actividad_id, valoracion_media, num_resenas in actividades:
+        actividad = ActividadTuristica.query.get(actividad_id)
+        resultados.append((actividad, valoracion_media, num_resenas))
+
+    return resultados
+
+def handle_opciones_mapa():
+    response = {
+        "fulfillmentMessages": [
+            {
+                "payload": {
+                    "richContent": [
+                        [
+                            {
+                                "type": "info",
+                                "title": "¿De qué actividad te gustaría ver el mapa?"
+                            },
+                            {
+                                "type": "chips",
+                                "options": [
+                                    {"text": "Senderismo Ruta Piedra de Bolívar"},
+                                    {"text": "Cayoning en la Cascada Cóndor Samana"},
+                                    {"text": "Senderismo Ruta Hieleros del Chimborazo"},
+                                    {"text": "Cicloturismo ruta Hieleros del Chimborazo"},
+                                    {"text": "Snowboard"},
+                                    {"text": "Camping en la ruta Cascada Cóndor Samana"},
+                                    {"text": "Camping en la ruta del Glaciar Hans Meyer"},
+                                    {"text": "Camping en la ruta Piedra de Bolívar"},
+                                    {"text": "Interpretación de flora y fauna"},
+                                    {"text": "Camping en la ruta de los Hieleros del Chimborazo"}
+                                ]
+                            }
+                        ]
+                    ]
+                }
+            }
+        ]
+    }
+    return jsonify(response)
+
+def handle_mostrar_mapa(req):
+    query_text = req.get('queryResult').get('queryText')
+    if query_text.startswith("Quiero ver el mapa de "):
+        actividad_nombre = query_text.replace("Quiero ver el mapa de ", "").strip()
+
+        actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
+        if actividad:
+            localizacion = actividad.localizacion_geografica
+            if localizacion:
+                latitud, longitud = map(str.strip, localizacion.split(','))
+                mapa_url = f"https://www.google.com/maps/search/?api=1&query={latitud},{longitud}"
+                response = {
+                    "fulfillmentMessages": [
+                        {
+                            "payload": {
+                                "richContent": [
+                                    [
+                                        {
+                                            "type": "info",
+                                            "title": f"Ubicación de {actividad_nombre}",
+                                            "subtitle": f"Latitud: {latitud}, Longitud: {longitud}",
+                                            "actionLink": mapa_url
+                                        },
+                                        {
+                                            "type": "image",
+                                            "rawUrl": f"https://maps.googleapis.com/maps/api/staticmap?center={latitud},{longitud}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C{latitud},{longitud}&key={GOOGLE_MAPS_API_KEY}",
+                                            "accessibilityText": f"Mapa de la actividad {actividad_nombre}"
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                }
+                return jsonify(response)
+            else:
+                return jsonify({"fulfillmentText": "Lo siento, no se encontró la localización de esa actividad."})
+        else:
+            return jsonify({"fulfillmentText": "Lo siento, no pude encontrar la ubicación de esa actividad."})
     else:
-        response_text = "No se encontró información sobre esa actividad."
-    return jsonify({"fulfillmentText": response_text})
+        return jsonify({"fulfillmentText": "Lo siento, no pude entender tu solicitud."})
+
+def handle_opciones_informacion():
+    response = {
+        "fulfillmentMessages": [
+            {
+                "payload": {
+                    "richContent": [
+                        [
+                            {
+                                "type": "info",
+                                "title": "¿Sobre qué actividad te gustaría más información?"
+                            },
+                            {
+                                "type": "chips",
+                                "options": [
+                                    {"text": "Senderismo Ruta Piedra de Bolívar"},
+                                    {"text": "Cayoning en la Cascada Cóndor Samana"},
+                                    {"text": "Senderismo Ruta Hieleros del Chimborazo"},
+                                    {"text": "Cicloturismo ruta Hieleros del Chimborazo"},
+                                    {"text": "Snowboard"},
+                                    {"text": "Camping en la ruta Cascada Cóndor Samana"},
+                                    {"text": "Camping en la ruta del Glaciar Hans Meyer"},
+                                    {"text": "Camping en la ruta Piedra de Bolívar"},
+                                    {"text": "Interpretación de flora y fauna"},
+                                    {"text": "Camping en la ruta de los Hieleros del Chimborazo"}
+                                ]
+                            }
+                        ]
+                    ]
+                }
+            }
+        ],
+        "outputContexts": [
+            {
+                "name": "projects/<your-project-id>/agent/sessions/<session-id>/contexts/informacion_context",
+                "lifespanCount": 5,
+                "parameters": {
+                    "actividad": "Quiero más información de Senderismo Ruta Piedra de Bolívar"
+                }
+            }
+        ]
+    }
+    return jsonify(response)
+def handle_mostrar_informacion(parameters):
+    query_text = parameters.get('actividad')
+    if query_text.startswith("Quiero más información de "):
+        actividad_nombre = query_text.replace("Quiero más información de ", "").strip()
+
+        actividad = ActividadTuristica.query.filter_by(nombre=actividad_nombre).first()
+        if actividad:
+            contexto = f"Nombre: {actividad.nombre}\nDescripción: {actividad.descripcion}\nRecomendaciones: {actividad.requerimiento_guia}\nÉpoca recomendada: {actividad.epoca_recomendada}\nNivel de dificultad: {actividad.nivel_dificultad}"
+            pregunta = f"Dame una descripción detallada sobre la actividad {actividad.nombre}."
+            informacion = query_gpt4(pregunta, contexto)
+
+            response = {
+                "fulfillmentText": f"Información sobre {actividad.nombre}: {informacion}"
+            }
+            return jsonify(response)
+        else:
+            return jsonify({"fulfillmentText": "Lo siento, no pude encontrar información sobre esa actividad."})
 

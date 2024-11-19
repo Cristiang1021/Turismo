@@ -1,36 +1,30 @@
 <footer class="footer mt-5 py-4 bg-dark text-white">
     <div class="container">
         <div class="row">
-            <div class="col-md-3">
-                <h5 class="text-uppercase">San Andrés</h5>
-                <p>Explora las mejores actividades y lugares en San Andrés. Descubre tu próxima aventura.</p>
+            <div class="col-md-4">
+                <h5 class="text-uppercase">San Andrés Turismo</h5>
+                <p>Explora las maravillas de San Andrés con nosotros.</p>
+                <p><strong>Contacto:</strong></p>
+                <p>Email: info@sanandres.com</p>
+                <p>Teléfono: +593 999 847 805</p>
             </div>
-            <div class="col-md-3">
-                <h5 class="text-uppercase">Quiénes somos</h5>
+            <div class="col-md-4">
+                <h5 class="text-uppercase">Navegación</h5>
                 <ul class="list-unstyled">
-                    <li><a href="#">Acerca de</a></li>
+                    <li><a href="{{ url_for('main.index') }}" class="text-white">Inicio</a></li>
+                    <li><a href="{{ url_for('main.actividades') }}" class="text-white">Actividades</a></li>
+                    <li><a href="{{ url_for('main.recomendaciones') }}" class="text-white">Recomendaciones</a></li>
                 </ul>
             </div>
-            <div class="col-md-3">
-                <h5 class="text-uppercase">Manténgase conectado</h5>
-                <ul class="list-unstyled social-icons">
-                    <li><a href="#"><i class="fab fa-facebook"></i></a></li>
-                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
-                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
-                    <li><a href="#"><i class="fab fa-tiktok"></i></a></li>
-                    <li><a href="#"><i class="fas fa-envelope"></i></a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <h5 class="text-uppercase">Mapa de San Andrés</h5>
-                <div id="map-container">
+                <div id="map-container" style="height: 200px;">
                     <div id="map"></div>
                 </div>
             </div>
         </div>
         <div class="text-center mt-3">
-            <p>&copy; 2023 San Andrés. Todos los derechos reservados.</p>
+            <p>&copy; 2024 San Andrés. Todos los derechos reservados.</p>
         </div>
     </div>
 </footer>
@@ -51,3 +45,36 @@
             .openPopup();
     });
 </script>
+<style>
+    .footer {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 20px 0;
+}
+
+.footer h5 {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.footer p, .footer a {
+    color: #d1d1d1;
+    margin-bottom: 10px;
+}
+
+.footer a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.footer .social-icons a {
+    color: #d1d1d1;
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.footer .social-icons a:hover {
+    color: #ffffff;
+}
+
+</style>
