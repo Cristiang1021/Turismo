@@ -10,7 +10,7 @@ class Config(object):
     #SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:admin@localhost:5432/turismos'
     #SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_xc5q_user:hICCI36xWvs6i68mNbk7rt9xtTBeItfy@dpg-coptj3tjm4es73abgusg-a.ohio-postgres.render.com/turismo_xc5q'
     #SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_5sv2_user:hICCI36xWvs6i68mNbk7rt9xtTBeItfy@dpg-coptj3tjm4es73abgusg-a.ohio-postgres.render.com/turismo_5sv2'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_5sv2_user:ANuBosQ0IeLLErwydBz0JrtFL1ZpiOgL@dpg-csgetr5umphs73b4g8fg-a.ohio-postgres.render.com/turismo_5sv2'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://turismo_rpjv_user:jSBP4e871bIkQCZgLPj3QS7kqoQ9wrLx@dpg-ct76puhu0jms73dmmaug-a.ohio-postgres.render.com/turismo_rpjv'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'app', 'static', 'uploads')

@@ -21,7 +21,7 @@ print(app.config['SECRET_KEY'])
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    #app.run(debug=True, port=3000)
-    app.run(debug=False)
+    app.run(debug=True, port=3000)
+    #app.run(debug=False)
 
 
