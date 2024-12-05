@@ -69,7 +69,7 @@ class CategoriaForm(FlaskForm):
 
 class ActividadTuristicaForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
-    descripcion= StringField('Descripción', validators=[DataRequired()])
+    descripcion = StringField('Descripción', validators=[DataRequired()])  # Corregido
     descripcion_equipamiento = TextAreaField('Equipamiento', validators=[DataRequired()])
     nivel_dificultad = SelectField('Nivel de Dificultad',
                                    choices=[('Fácil', 'Fácil'), ('Medio', 'Medio'), ('Difícil', 'Difícil')])
@@ -102,6 +102,9 @@ class ActividadTuristicaForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(ActividadTuristicaForm, self).__init__(*args, **kwargs)
         self.categoria_id.choices = [(c.id, c.nombre) for c in Categoria.query.all()]
+        if not self.categoria_id.choices:
+            print("No hay categorías disponibles en la base de datos")
+
 
 class EventoForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])

@@ -440,56 +440,67 @@ def crear_actividad():
     form = ActividadTuristicaForm()
 
     if form.validate_on_submit():
-        actividad = ActividadTuristica(
-            nombre=form.nombre.data,
-            descripcion=form.descripcion_equipamiento.data,
-            descripcion_equipamiento=form.descripcion_equipamiento.data,
-            nivel_dificultad=form.nivel_dificultad.data,
-            nivel_fisico_requerido=form.nivel_fisico_requerido.data,
-            tiempo_promedio_duracion=form.tiempo_promedio_duracion.data,
-            sitio=form.sitio.data,
-            cota_maxima=form.cota_maxima.data,
-            cota_minima=form.cota_minima.data,
-            desnivel_subida=form.desnivel_subida.data,
-            desnivel_bajada=form.desnivel_bajada.data,
-            lugar_partida=form.lugar_partida.data,
-            lugar_llegada=form.lugar_llegada.data,
-            epoca_recomendada=form.epoca_recomendada.data,
-            tipo_superficie=form.tipo_superficie.data,
-            temperatura_minima=form.temperatura_minima.data,
-            temperatura_maxima=form.temperatura_maxima.data,
-            precipitacion_media_anual=form.precipitacion_media_anual.data,
-            requerimiento_guia=form.requerimiento_guia.data,
-            localizacion_geografica=form.localizacion_geografica.data,
-            precio_referencial=form.precio_referencial.data,
-            categoria_id=form.categoria_id.data,
-            acceso=form.acceso.data,
-        )
-        db.session.add(actividad)
-        db.session.flush()
-
-        if 'imagenes' in request.files:
-            files = request.files.getlist('imagenes')
-            for file in files:
-                if file and file.filename != '':
-                    filename, mimetype, image_data = save_image(file)
-                    if filename and mimetype and image_data:
-                        imagen_actividad = ImagenActividad(
-                            name=filename,
-                            data=image_data,
-                            mimetype=mimetype,
-                            actividad_id=actividad.id
-                        )
-                        db.session.add(imagen_actividad)
         try:
+            # Creación de la actividad turística
+            actividad = ActividadTuristica(
+                nombre=form.nombre.data,
+                descripcion=form.descripcion.data,  # Corregido
+                descripcion_equipamiento=form.descripcion_equipamiento.data,
+                nivel_dificultad=form.nivel_dificultad.data,
+                nivel_fisico_requerido=form.nivel_fisico_requerido.data,
+                tiempo_promedio_duracion=form.tiempo_promedio_duracion.data,
+                sitio=form.sitio.data,
+                cota_maxima=form.cota_maxima.data,
+                cota_minima=form.cota_minima.data,
+                desnivel_subida=form.desnivel_subida.data,
+                desnivel_bajada=form.desnivel_bajada.data,
+                lugar_partida=form.lugar_partida.data,
+                lugar_llegada=form.lugar_llegada.data,
+                epoca_recomendada=form.epoca_recomendada.data,
+                tipo_superficie=form.tipo_superficie.data,
+                temperatura_minima=form.temperatura_minima.data,
+                temperatura_maxima=form.temperatura_maxima.data,
+                precipitacion_media_anual=form.precipitacion_media_anual.data,
+                requerimiento_guia=form.requerimiento_guia.data,
+                localizacion_geografica=form.localizacion_geografica.data,
+                precio_referencial=form.precio_referencial.data,
+                categoria_id=form.categoria_id.data,
+                acceso=form.acceso.data,
+            )
+            db.session.add(actividad)
+            db.session.flush()
+
+            # Manejo de las imágenes
+            if 'imagenes' in request.files:
+                files = request.files.getlist('imagenes')
+                for file in files:
+                    if file and file.filename != '':
+                        filename, mimetype, image_data = save_image(file)
+                        if filename and mimetype and image_data:
+                            imagen_actividad = ImagenActividad(
+                                name=filename,
+                                data=image_data,
+                                mimetype=mimetype,
+                                actividad_id=actividad.id
+                            )
+                            db.session.add(imagen_actividad)
+                        else:
+                            print(f"Error al procesar la imagen: {file.filename}")
+
             db.session.commit()
             flash('¡Actividad creada con éxito!', 'success')
             return redirect(url_for('admin.listar_actividades'))
         except Exception as e:
             db.session.rollback()
+            print(f"Error al guardar la actividad: {e}")
             flash('Error al guardar la actividad: {}'.format(e), 'danger')
+    else:
+        # Agregar un log para los errores del formulario
+        if form.errors:
+            print("Errores en el formulario:", form.errors)
 
     return render_template('admin/crear_actividad.html', form=form)
+
 
 
 @admin_bp.route('/actividades/editar/<int:id>', methods=['GET', 'POST'])
